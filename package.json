@@ -4,6 +4,7 @@
   "description": "Add-project-description-here | Voyage-9 | https://chingu.io/ This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.",
   "main": "app.js",
   "scripts": {
+    "lint": "eslint server/**",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node ./server/app",
     "start-dev": "nodemon ./server/app"
@@ -24,6 +25,9 @@
     "foobar": "1.1.0"
   },
   "devDependencies": {
+    "eslint": "5.16.0",
+    "eslint-plugin-react": "7.13.0",
     "nodemon": "1.19.1"
   }
+
 }
