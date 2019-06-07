@@ -1,6 +1,5 @@
 # v9-bears-team-21
-Add-project-description-here | Voyage-9 | https://chingu.io/
-This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.
+This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.| Voyage-9 | https://chingu.io/
 
 ---
 ## Requirements
