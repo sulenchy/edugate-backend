@@ -4,10 +4,11 @@
   "description": "Add-project-description-here | Voyage-9 | https://chingu.io/ This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.",
   "main": "app.js",
   "scripts": {
+    "build": "babel server/ --out-dir build/",
     "lint": "eslint server/**",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node ./server/app",
-    "start-dev": "nodemon ./server/app"
+    "start": "node ./build/app",
+    "start-dev": "nodemon --exec babel-node ./server/app"
   },
   "repository": {
     "type": "git",
@@ -25,8 +26,13 @@
     "foobar": "1.1.0"
   },
   "devDependencies": {
+    "@babel/cli": "7.4.4",
+    "@babel/core": "7.4.5",
+    "@babel/node": "7.4.5",
+    "@babel/preset-env": "7.4.5",
     "eslint": "5.16.0",
     "eslint-plugin-react": "7.13.0",
-    "nodemon": "1.19.1"
+    "nodemon": "1.19.1",
+    "winston": "3.2.1"
   }
 }
