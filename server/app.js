@@ -8,6 +8,6 @@ const port = process.env.PORT || 3000;
 
 const app = express()
 
-app.get('/', (req, res) => res.send('<h1 style="text-align:center; padding-top:70px">Welcome to EduGate!</h1>'))
+app.get('/', (req, res) => res.send('Welcome to EduGate!'))
 
 app.listen(port, () => winston.log("info",`Example app listening on port ${port}!`))

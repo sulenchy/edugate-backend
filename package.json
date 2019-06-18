@@ -4,9 +4,9 @@
   "description": "Add-project-description-here | Voyage-9 | https://chingu.io/ This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.",
   "main": "app.js",
   "scripts": {
-    "build": "babel server/ --out-dir build/",
+    "build": "rm -rf build/ && babel server/ --out-dir build/",
     "lint": "eslint server/**",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "nyc mocha test/**/**/**.test.js --require @babel/register --require babel-polyfill --exit",
     "start": "node ./build/app",
     "start-dev": "nodemon --exec babel-node ./server/app"
   },
@@ -21,15 +21,20 @@
   },
   "homepage": "https://github.com/chingu-voyages/v9-bears-team-21#readme",
   "dependencies": {
+    "chai": "4.2.0",
     "dotenv": "8.0.0",
-    "express": "^4.17.1",
-    "foobar": "1.1.0"
+    "express": "4.17.1",
+    "foobar": "1.1.0",
+    "mocha": "6.1.4",
+    "nyc": "14.1.1"
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
     "@babel/core": "7.4.5",
     "@babel/node": "7.4.5",
+    "@babel/polyfill": "7.4.4",
     "@babel/preset-env": "7.4.5",
+    "@babel/register": "7.4.4",
     "eslint": "5.16.0",
     "eslint-plugin-react": "7.13.0",
     "nodemon": "1.19.1",
