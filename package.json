@@ -6,7 +6,7 @@
   "scripts": {
     "build": "rm -rf build/ && babel server/ --out-dir build/",
     "lint": "eslint server/**",
-    "test": "nyc mocha test/**/**/**.test.js --require @babel/register --require babel-polyfill --exit",
+    "test": "nyc mocha tests/**/**/**.test.js --require @babel/register --require @babel/polyfill --exit",
     "start": "node ./build/app",
     "start-dev": "nodemon --exec babel-node ./server/app"
   },
@@ -22,6 +22,7 @@
   "homepage": "https://github.com/chingu-voyages/v9-bears-team-21#readme",
   "dependencies": {
     "chai": "4.2.0",
+    "chai-http": "4.3.0",
     "dotenv": "8.0.0",
     "express": "4.17.1",
     "foobar": "1.1.0",

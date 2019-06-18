@@ -11,3 +11,5 @@ const app = express()
 app.get('/', (req, res) => res.send('Welcome to EduGate!'))
 
 app.listen(port, () => winston.log("info",`Example app listening on port ${port}!`))
+
+export default app;
