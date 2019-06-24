@@ -1,5 +1,5 @@
 import chai from 'chai';
-import server from '../server/app';
+import server from '../../server/app';
 import chaiHttp from 'chai-http';
 
 const expect = chai.expect;

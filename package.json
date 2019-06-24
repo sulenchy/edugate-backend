@@ -8,7 +8,12 @@
     "lint": "eslint server/**",
     "test": "nyc mocha tests/**/**/**.test.js --require @babel/register --require @babel/polyfill --exit",
     "start": "node ./build/app",
-    "start-dev": "nodemon --exec babel-node ./server/app"
+    "start-dev": "nodemon --exec babel-node ./server/app",
+    "db-migrate": "sequelize db:migrate --env development",
+    "db-init-dev": "sequelize db:migrate:undo:all --env development && sequelize db:migrate --env development",
+    "db-init-test": "sequelize db:migrate:undo:all --env test && sequelize db:migrate --env test",
+    "db-test-migrate": "sequelize db:migrate --env test",
+    "undo-db-migrate": "sequelize db:migrate:undo:all --env development"
   },
   "repository": {
     "type": "git",
@@ -27,7 +32,10 @@
     "express": "4.17.1",
     "foobar": "1.1.0",
     "mocha": "6.1.4",
-    "nyc": "14.1.1"
+    "nyc": "14.1.1",
+    "pg": "7.11.0",
+    "pg-hstore": "2.3.3",
+    "sequelize": "5.8.12"
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
