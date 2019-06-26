@@ -12,7 +12,7 @@ login.get = (req, res) => {
 login.post = (req, res) => {
   const { username, password } = req.body;
   Users.findAll({
-    attributes: ['password', 'user_uid'],
+    attributes: ['password', 'user_uid', 'role'],
     where: {
         username
     }
@@ -21,7 +21,16 @@ login.post = (req, res) => {
     if (!user || !user.length) return res.send({err: "No User Found"})
     const userData = user[0].dataValues;
     bcrypt.compare(password, userData.password)
-    .then(match => res.send({match}))
+    .then(match => {
+      if (match) {
+        const user = {
+          user_uid: userData.user_uid,
+          role: userData.role,
+        }
+        req.session = user
+      }
+      res.send({match})
+    })
     .catch(err => console.log(err))
   })
   .catch(err => console.log(err))
