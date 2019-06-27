@@ -3,5 +3,8 @@ node_js:
   - "8"
 before_install:
   - npm i -g npm@6.4.1
-  
+before_script:
+  - psql -c 'create database EduGateTestDB;' -U postgres
+  - npm db-init-test
+
 cache: npm
