@@ -1,4 +1,4 @@
 export default (req, res) => {
-  req.session = {};
+  req.session = null;
   res.redirect('/');
 }
