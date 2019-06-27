@@ -24,7 +24,6 @@ describe('App.js', () => {
 })
 
 describe('Login', () => {
-
   before((done) => {
     bcrypt.hash('123testing', 10)
     .then(password => {
@@ -44,6 +43,18 @@ describe('Login', () => {
     })
   })
 
+  let agent = chai.request.agent(server)
+
+  before((done) => {
+    agent
+    .post('/login').redirects(0)
+    .send({ username: 'jamsgra', password: '123testing' })
+    .then(res => {
+      expect(res).to.have.cookie('session');
+      done();
+  }).catch(err => console.log(err))
+})
+
   after((done) => {
     Users.destroy({
       where: {
@@ -54,15 +65,16 @@ describe('Login', () => {
 
   it('login success', (done) => {
     chai.request(server)
-      .post('/login')
+      .post('/login').redirects(0)
       .type('form')
       .send({
         'username': 'jamsgra',
         'password': '123testing'
       })
       .end((err, res) => {
-        expect(res.status).to.equal(200);
-        expect(res.body.match).to.equal(true);
+        expect(res).to.have.status(302);
+        expect(res).to.redirectTo(/\/dash$/);
+        expect(res).to.have.cookie('session');
         done();
       })
   })
@@ -77,7 +89,8 @@ describe('Login', () => {
       })
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body.match).to.equal(false);
+        expect(res.body.passMatch).to.equal(false);
+        expect(res).to.not.have.cookie('session');
         done();
       })
   })
@@ -92,8 +105,19 @@ describe('Login', () => {
       })
       .end((err, res) => {
         expect(res.status).to.equal(200);
-        expect(res.body.err).to.equal('No User Found');
+        expect(res.body.userFound).to.equal(false);
+        expect(res).to.not.have.cookie('session');
         done();
       })
+  })
+
+  it('logout', (done) => {
+        agent.get('/logout')
+        .then(res => {
+          expect(res).to.redirectTo(/\/$/);
+          expect(res).to.not.have.cookie('session');
+          done();
+        })
+        .catch(err => console.log(err))
   })
 })
