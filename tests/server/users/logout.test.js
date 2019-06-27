@@ -54,9 +54,13 @@ describe('Logout route', () => {
   it('logout', (done) => {
         agent.get('/logout')
         .then(res => {
-          expect(res).to.redirectTo(/\/$/);
-          expect(res).to.not.have.cookie('session');
-          done();
+          expect(res).to.have.status(200);
+          expect(res.body.msg).to.equal("User logged out successfully");
+          return agent.get('/')
+          .then(function(res) {
+            expect(res).to.not.have.cookie('session')
+            done()
+          })
         })
         .catch(err => console.log(err))
   })

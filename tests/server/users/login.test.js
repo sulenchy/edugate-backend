@@ -52,15 +52,15 @@ describe('Login', () => {
 
   it('login success', (done) => {
     chai.request(server)
-      .post('/login').redirects(0)
+      .post('/login')
       .type('form')
       .send({
         'username': 'jamsgra',
         'password': '123testing'
       })
       .end((err, res) => {
-        expect(res).to.have.status(302);
-        expect(res).to.redirectTo(/\/dash$/);
+        expect(res).to.have.status(200);
+        expect(res.body.msg).to.equal("User logged in successfully");
         expect(res).to.have.cookie('session');
         done();
       })
