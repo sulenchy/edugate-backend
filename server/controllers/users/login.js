@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import db from '../../server/models/index'
+import db from '../../models'
 
 let { Users } = db;
 
@@ -18,7 +18,7 @@ login.post = (req, res) => {
     }
   })
   .then(user => {
-    if (!user) return res.send({userFound: false})
+    if (!user) return res.status(404).json({err: "No User Found"})
     const userData = user.dataValues;
     bcrypt.compare(password, userData.password)
     .then(match => {
@@ -30,11 +30,12 @@ login.post = (req, res) => {
         req.session = user
         return res.redirect('/dash')
       }
-      res.send({passMatch: match})
+      return res.status(404).json({
+        err: "Password is incorrect"
+      })
     })
-    .catch(err => console.log(err))
   })
-  .catch(err => console.log(err))
+  .catch(err => res.status(500).json({err}))
 };
 
 export { login }

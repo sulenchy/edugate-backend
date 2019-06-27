@@ -1,6 +1,6 @@
 import express from 'express';
-import { login } from './login';
-import logout from './logout';
+import { login } from './users/login';
+import logout from './users/logout';
 
 const router = express.Router();
 
