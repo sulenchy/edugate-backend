@@ -28,7 +28,7 @@ login.post = (req, res) => {
           role: userData.role,
         }
         req.session = user
-        return res.redirect('/dash')
+        return res.status(200).json({msg: "User logged in successfully"})
       }
       return res.status(404).json({
         err: "Password is incorrect"
