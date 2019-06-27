@@ -40,6 +40,6 @@ export default (sequelize, DataTypes) => {
       foreignKey: 'user_uid',
       onDelete: 'CASCADE'
     })
-  };
+  )};
   return Results;
 };

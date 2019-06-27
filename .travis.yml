@@ -1,7 +1,14 @@
 language: node_js
 node_js:
   - "8"
+services:
+  - postgresql
 before_install:
   - npm i -g npm@6.4.1
-  
+  - npm install
+  - npm install -g sequelize-cli
+before_script:
+  - psql -c 'create database EduGateTestDB;' -U postgres
+  - sequelize db:migrate:undo:all
+  - sequelize db:migrate
 cache: npm
