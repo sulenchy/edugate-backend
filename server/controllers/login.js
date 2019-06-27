@@ -11,15 +11,15 @@ login.get = (req, res) => {
 
 login.post = (req, res) => {
   const { username, password } = req.body;
-  Users.findAll({
+  Users.findOne({
     attributes: ['password', 'user_uid', 'role'],
     where: {
         username
     }
   })
   .then(user => {
-    if (!user || !user.length) return res.send({err: "No User Found"})
-    const userData = user[0].dataValues;
+    if (!user) return res.send({userFound: false})
+    const userData = user.dataValues;
     bcrypt.compare(password, userData.password)
     .then(match => {
       if (match) {
@@ -28,8 +28,9 @@ login.post = (req, res) => {
           role: userData.role,
         }
         req.session = user
+        return res.redirect('/dash')
       }
-      res.send({match})
+      res.send({passMatch: match})
     })
     .catch(err => console.log(err))
   })
