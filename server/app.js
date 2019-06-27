@@ -15,7 +15,7 @@ const app = express()
 
 app.use(cookieSession({
   name: 'session',
-  secret: process.env.SECRET,
+  keys: [process.env.SECRET],
   maxAge: 60 * 60 * 1000,
   httpOnly: true,
 }))
