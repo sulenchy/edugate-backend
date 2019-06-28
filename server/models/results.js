@@ -1,9 +1,10 @@
 'use strict';
 export default (sequelize, DataTypes) => {
   const Results = sequelize.define('Results', {
-    result_uid: {
+    result_id: {
       allowNull: false,
-      type: DataTypes.UUID,
+      primaryKey: true,
+      type: DataTypes.INTEGER
     },
     year: {
       allowNull: false,

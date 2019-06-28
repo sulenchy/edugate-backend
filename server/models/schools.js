@@ -2,8 +2,10 @@
 export default (sequelize, DataTypes) => {
   const Schools = sequelize.define('Schools', {
     school_uid:{ 
+      allowNull: false,
+      primaryKey: true,
       type: DataTypes.UUID,
-      allowNull: false
+      defaultValue: DataTypes.UUIDV4
     },
     school_name: {
       type: DataTypes.STRING,
@@ -15,11 +17,7 @@ export default (sequelize, DataTypes) => {
     },
     email: {
       type: DataTypes.STRING,
-      allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     },
     address_line_1: {
       type: DataTypes.STRING,

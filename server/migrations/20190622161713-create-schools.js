@@ -2,14 +2,9 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Schools', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
       school_uid: {
         allowNull: false,
+        primaryKey: true,
         type: Sequelize.UUID,
       },
       school_name: {
@@ -21,11 +16,7 @@ module.exports = {
         type: Sequelize.UUID,
       },
       email: {
-        allowNull: false,
-        type: Sequelize.STRING,
-      },
-      password: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING,
       },
       address_line_1: {
