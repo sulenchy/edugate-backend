@@ -37,12 +37,11 @@ describe("User Controller", () => {
                 .post(signupUrl)
                 .send(userDataSignupValidData)
                 .end((err, res) => {
-                    const { token, username } = res.body;
+                    const { username } = res.body;
                     res.body.should.be.eql({
                         message: "New account created successfully.",
                         status: "success",
-                        username,
-                        token
+                        username
                     });
                     tempUsername = username 
                     done();
@@ -56,11 +55,9 @@ describe("User Controller", () => {
                 .post(loginUrl)
                 .send({username: tempUsername, password: '123testing'})
                 .end((err, res) => {
-                    const { token } = res.body;
                     res.body.should.be.eql({
                         message: "User logged in successfully.",
                         status: "success",
-                        token
                     });
                     done();
                 });

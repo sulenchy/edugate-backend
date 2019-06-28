@@ -1,8 +1,6 @@
 import bcrypt from 'bcryptjs';
 import models from '../models';
 
-import { createToken } from '../middlewares/tokenUtils';
-
 const { Users } = models;
 
 /**
@@ -23,25 +21,27 @@ class UsersController {
     const role = 'admin';
     const randomString = (Math.random().toString(36).slice(-10)).slice(0, 2);
     const username = `${firstName}${surName}${randomString}`;
-    const lifeSpan = '1h';
     try {
       const user = await Users
       .create({
         email,
+        firstName,
+        surName,
         password,
         role,
         username
       });
       if(user){
-        const token = createToken(user.user_uid, lifeSpan);
-
-        // TODO: should we send confirmation emil to user
+        const userSession = {
+          user_uid: user.user_uid,
+          role: user.role,
+        }
+        req.session = userSession
 
         return res.status(201).json({
           status: 'success',
           message: 'New account created successfully.',
           username,
-          token
         });
       }
     } catch(err){
@@ -62,7 +62,6 @@ class UsersController {
    */
   static async login(req, res) {
     const { username, password } = req.body;
-    const lifeSpan = '1h';
     try{
       const user = await Users.findOne({
         attributes: ['password', 'user_uid', 'role'],
@@ -74,16 +73,14 @@ class UsersController {
       const userData = user.dataValues;
       const match =  await bcrypt.compare(password, userData.password);
       if (match) {
-        const user = {
+        const userSession = {
           user_uid: userData.user_uid,
           role: userData.role,
         }
-        const token = createToken(user.user_uid, lifeSpan);
-        req.session = user
+        req.session = userSession
         return res.status(200).json({
           status: 'success',
           message: 'User logged in successfully.',
-          token
         });
       }
       return res.status(404).json({
