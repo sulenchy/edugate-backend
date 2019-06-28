@@ -1,24 +1,25 @@
 'use strict';
+const uuid = require('uuid/v4');
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Users', {
-      id: {
-        allowNull: false,
-        autoIncrement: true,
-        primaryKey: true,
-        type: Sequelize.INTEGER
-      },
       user_uid: {
         allowNull: false,
+        primaryKey: true,
         type: Sequelize.UUID
       },
       first_name: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
       },
       last_name: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
+      },
+      school_uid:{
+        allowNull: true,
+        type:Sequelize.INTEGER,
       },
       dob: {
         allowNull: true,
@@ -45,6 +46,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
+        allowNull: false,
         type: Sequelize.STRING
       },
       createdAt: {

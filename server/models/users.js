@@ -3,22 +3,24 @@ export default (sequelize, DataTypes) => {
   const Users = sequelize.define('Users', {
     user_uid: {
       allowNull: false,
+      primaryKey: true,
       type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4
     },
     first_name:{
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     last_name: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     dob: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.DATE,
     },
     year_of_graduation: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     role: {
@@ -26,11 +28,11 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
     password: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     phone_number: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     username: {
@@ -45,7 +47,7 @@ export default (sequelize, DataTypes) => {
   Users.associate = function(models) {
     // associations can be defined here
     Users.belongsTo(models.Schools, {
-      foreignKey: 'user_uid',
+      foreignKey: 'school_uid',
     })
   };
   return Users;
