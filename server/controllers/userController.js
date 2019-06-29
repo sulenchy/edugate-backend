@@ -15,18 +15,18 @@ class UsersController {
  * @returns {object} - returns user
  */
   static async signUp(req, res) {
-    const { email, firstName, surName } = req.body;
+    const { email, first_name, last_name } = req.body;
     let { password } = req.body;
     password = bcrypt.hashSync(password, 10);
     const role = 'admin';
     const randomString = (Math.random().toString(36).slice(-10)).slice(0, 2);
-    const username = `${firstName}${surName}${randomString}`;
+    const username = `${first_name}${last_name}${randomString}`;
     try {
       const user = await Users
       .create({
         email,
-        firstName,
-        surName,
+        first_name,
+        last_name,
         password,
         role,
         username
