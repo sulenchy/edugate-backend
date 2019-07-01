@@ -18,7 +18,6 @@ class SchoolsController {
         const admin_uid = req.session.user_uid;
         const { role } = req.session;
 
-        console.log("role of the user ===> ", role)
         try {
             // catches unauthorised user
             if (!admin_uid) {
