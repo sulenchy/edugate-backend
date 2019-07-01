@@ -20,6 +20,7 @@ class SchoolValidation {
     SchoolValidation.validateSchoolName(req);
     SchoolValidation.validateAddressLine1(req);
     SchoolValidation.validateCity(req);
+    SchoolValidation.validateCountry(req);
     SchoolValidation.validatePostalCode(req);
     SchoolValidation.sendFormattedError(req, res, next);
   }
@@ -61,6 +62,18 @@ class SchoolValidation {
   static validateCity(req) {
     req.checkBody('city', 'please enter city').exists();
     req.checkBody('city', 'please enter valid city').isLength({ min: 2 }).withMessage('must be at least 2 letters long');
+  }
+
+  /**
+    * @description - This method validates the email
+    * @param {object} req - The request object
+    * @returns {null} - returns nothing
+    * @memberOf SchoolValidation
+    * @static
+    */
+  static validateCountry(req) {
+    req.checkBody('country', 'please enter country').exists();
+    req.checkBody('country', 'please enter valid country').isLength({ min: 2 }).withMessage('must be at least 2 letters long');
   }
 
   /**
