@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import XLSX from 'xlsx';
 import models from '../models';
 
 const { Users } = models;
@@ -19,8 +20,7 @@ class UsersController {
     let { password } = req.body;
     password = bcrypt.hashSync(password, 10);
     const role = 'admin';
-    const randomString = (Math.random().toString(36).slice(-10)).slice(0, 2);
-    const username = `${first_name}${last_name}${randomString}`;
+    const username = UsersController.createUsername(first_name, last_name);
     try {
       const user = await Users
       .create({
@@ -83,13 +83,53 @@ class UsersController {
           message: 'User logged in successfully.',
         });
       }
-      return res.status(404).json({
+      return res.status(401).json({
         status: 'failure',
         error: "Password is incorrect"
       })
     }
     catch(err){
       res.status(500).json({err});
+    }
+  }
+
+  static createUsername(first_name, last_name) {
+    const randomString = (Math.random().toString(36).slice(-10)).slice(0, 2);
+    const username = `${first_name}${last_name}${randomString}`;
+    return username;
+  }
+
+  static createPassword() {
+    const randomString = (Math.random().toString(36).slice(-10)).slice(0, 5);
+    const password = bcrypt.hashSync(randomString, 10);
+    return password;
+  }
+
+  static async addUsers(req, res) {
+    const { users } = res.locals;
+    for (let user of users) {
+      const { first_name, last_name } = user;
+      user.username = UsersController.createUsername(first_name, last_name);
+      user.password = UsersController.createPassword();
+    }
+    try {
+      const newUsers = await Users
+      .bulkCreate(
+        users
+      );
+      if (newUsers) {
+        return res.status(201).json({
+          status: 'success',
+          message: `${users.length} new User accounts created successfully.`
+        });
+      }
+    } catch(err){
+      return res.status(500)
+      .json({
+        errors: {
+          message: [err.message]
+        },
+      })
     }
   }
 }
