@@ -5,6 +5,7 @@ import bodyParser from 'body-parser';
 import validator from 'express-validator';
 import path from 'path';
 import cookieSession from 'cookie-session';
+import fileUpload from 'express-fileupload';
 import router from './routes/index';
 
 dotenv.config();
@@ -14,7 +15,7 @@ const port = process.env.PORT || 3000;
 const app = express()
 
 app.use(validator());
-
+app.use(fileUpload());
 
 app.use(cookieSession({
   name: 'session',
