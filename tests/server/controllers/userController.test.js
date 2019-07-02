@@ -1,5 +1,7 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
+import fs from 'fs';
+import path from 'path';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
@@ -13,6 +15,7 @@ const { Users } = db;
 
 const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
+const addUsersUrl = '/api/v1/users/addusers';
 
 let tempUsername = '';
 
@@ -43,7 +46,7 @@ describe("User Controller", () => {
                         status: "success",
                         username
                     });
-                    tempUsername = username 
+                    tempUsername = username
                     done();
                 });
         });
@@ -80,11 +83,26 @@ describe("User Controller", () => {
                 .send({username: 'tempUsername', password: '12testing'})
                 .end((err, res) => {
                     res.body.should.be.eql({
-                        status: 'failure', 
-                        error: "No User Found"
+                        status: 'failure',
+                        error: 'No User Found'
                     });
                     done();
                 });
         });
+    })
+
+    describe('Add users', () => {
+      it('should add all users', (done) => {
+        chai.request(app)
+            .post(addUsersUrl)
+            .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataValid.xlsx')), 'addUsersDataValid.xlsx')
+            .end((err, res) => {
+              res.body.should.be.eql({
+                status: 'success',
+                message: '3 new User accounts created successfully.'
+              })
+              done();
+            })
+      })
     })
 })
