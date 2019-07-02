@@ -14,7 +14,7 @@ class SchoolsController {
    * @returns {object} - returns user
    */
     static async create(req, res) {
-        const { school_name, address_line_1, Address_line_2, country, city, postal_code } = req.body;
+        const { school_name, address_line_1, address_line_2, country, city, postal_code } = req.body;
         const admin_uid = req.session.user_uid;
         const { role } = req.session;
 
@@ -35,7 +35,7 @@ class SchoolsController {
             }
             const school = await Schools
                 .create({
-                    school_name, admin_uid, address_line_1, Address_line_2, country, city, postal_code
+                    school_name, admin_uid, address_line_1, address_line_2, country, city, postal_code
                 });
             if (school) {
 
