@@ -34,6 +34,7 @@ class UsersController {
         const userSession = {
           user_uid: user.user_uid,
           role: user.role,
+          school_uid: user.school_uid
         }
         req.session = userSession
 
@@ -77,6 +78,9 @@ class UsersController {
           school_uid: user.school_uid
         }
         req.session = userSession
+
+        console.log('session values ===> ', req.session);
+
         return res.status(200).json({
           status: 'success',
           message: 'User logged in successfully.',
@@ -92,18 +96,31 @@ class UsersController {
     }
   }
 
+  /**
+   * 
+   * @param {*} first_name 
+   * @param {*} last_name 
+   */
   static createUsername(first_name, last_name) {
     const randomString = (Math.random().toString(36).slice(-10)).slice(0, 2);
     const username = `${first_name}${last_name}${randomString}`;
     return username;
   }
 
+  /**
+   * 
+   */
   static createPassword() {
     const randomString = (Math.random().toString(36).slice(-10)).slice(0, 5);
     const password = bcrypt.hashSync(randomString, 10);
     return password;
   }
 
+  /**
+   * 
+   * @param {*} req 
+   * @param {*} res 
+   */
   static async addUsers(req, res) {
     const { users } = res.locals;
     for (let user of users) {
@@ -127,6 +144,52 @@ class UsersController {
       .json({
         errors: {
           message: [err.message]
+        },
+      })
+    }
+  }
+
+  /**
+   * 
+   * @param {*} req 
+   * @param {*} res 
+   */
+  static async getUsers(req, res) {
+    // gets parameters from request param
+    let { role, schoolName } = req.param;
+
+    try{
+      let userList = '';
+      if(role) {
+        userList = await Users.findAll({
+          where: {
+            role,
+            school_name: schoolName
+          }
+        });
+      } else {
+        userList = await Users.findAll({
+          where: {
+            school_name: schoolName
+          }
+        });
+      }
+      if(userList){
+        return res.status(200).json({
+          status: 'success',
+          messaage: 'User(s) successfully retrieved'
+        })
+      }
+      return res.status(200).json({
+        status: 'success',
+        messaage: 'No user found'
+      })
+    }
+    catch(error){
+      return res.status(500)
+      .json({
+        errors: {
+          message: [error.message]
         },
       })
     }
