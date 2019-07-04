@@ -8,7 +8,7 @@ export const checkUserIsLoggedIn = (req, res,next) => {
     next();
 }
 export const checkUserRole = (req, res,next) => {
-    if(['admin', 'super admin'].includes(req.session.role)){
+    if(!['admin', 'super admin'].includes(req.session.role)){
         return res.status(401).json({
             status: 'failure',
             message: "Sorry, you do not have the required priviledge"

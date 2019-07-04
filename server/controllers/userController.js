@@ -88,9 +88,7 @@ class UsersController {
           school_uid: userData.school_uid
 >>>>>>> ft(get-user): fix some issues on add user functionality
         }
-        req.session = userSession
-
-        console.log('session values ===> ', req.session);
+        req.session = userSession;
 
         return res.status(200).json({
           status: 'success',
@@ -133,14 +131,12 @@ class UsersController {
    * @param {*} res 
    */
   static async addUsers(req, res) {
-    console.log('session values ====> ', req.session)
     const { users } = res.locals;
     for (let user of users) {
       const { first_name, last_name } = user;
       user.username = UsersController.createUsername(first_name, last_name);
       user.password = UsersController.createPassword();
       user.school_uid = req.session.school_uid;
-
     }
     try {
       const newUsers = await Users
@@ -179,15 +175,13 @@ class UsersController {
         userList = await Users.findAll({
           where: {
             role,
-            school_uid,
-            user_uid: !user_uid
+            school_uid
           }
         });
       } else {
         userList = await Users.findAll({
           where: {
-            school_uid,
-            user_uid: !user_uid
+            school_uid
           }
         });
       }
@@ -218,10 +212,6 @@ class UsersController {
         messaage: 'User logout successfully'
       })
     }
-    return res.status(200).json({
-      status: 'success',
-      messaage: 'User logout successfully'
-    })
   }
 }
 

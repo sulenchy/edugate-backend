@@ -17,7 +17,7 @@ module.exports = {
         allowNull: true,
         type: Sequelize.STRING
       },
-      school_uid:{
+      school_uid: {
         allowNull: true,
         type:Sequelize.UUID,
       },
@@ -46,7 +46,8 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
-        allowNull: true,
+        allowNull: false,
+        unique: true,
         type: Sequelize.STRING
       },
       createdAt: {

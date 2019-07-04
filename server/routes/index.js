@@ -12,6 +12,7 @@ import {checkUserIsLoggedIn, checkUserRole} from '../middlewares/checkUser';
 const router = express.Router();
 // default route
 router.get('/', (req, res) => res.send('Welcome to EduGate!'))
+
 router.get('/api/v1/users/logout', UserController.logout);
 router.get('/api/v1/users', checkUserIsLoggedIn, checkUserRole, UserController.getUsers);
 router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);

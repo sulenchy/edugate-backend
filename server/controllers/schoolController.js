@@ -27,6 +27,8 @@ class SchoolsController {
       }
 
       if (school_uid) {
+      // check if the admin has a school already or not
+      if(school_uid){
         return res.status(409).json({
           status: 'failure',
           message: 'Sorry! An admin is not allow to manage more than a school'
