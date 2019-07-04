@@ -80,7 +80,7 @@ describe('Add users validation unit tests', () => {
         })
   })
 
-  it('should give error if missing required user inputs', (done) => {
+  it('should give error if invalid input formats', (done) => {
     chai.request(app)
         .post(addUsersUrl)
         .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataInvalidInputs.xlsx')), 'addUsersDataInvalidInputs.xlsx')

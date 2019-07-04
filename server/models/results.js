@@ -1,11 +1,6 @@
 'use strict';
 export default (sequelize, DataTypes) => {
   const Results = sequelize.define('Results', {
-    result_id: {
-      allowNull: false,
-      primaryKey: true,
-      type: DataTypes.INTEGER
-    },
     year: {
       allowNull: false,
       type: DataTypes.STRING,
@@ -30,6 +25,10 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.STRING,
     },
+    student_result_id: {
+      allowNull: false,
+      type: DataTypes.STRING,
+    }
   }, {});
   Results.associate = function(models) {
     // associations can be defined here

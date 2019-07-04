@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import XLSX from 'xlsx';
 import models from '../models';
 
 const { Users } = models;
@@ -64,18 +63,18 @@ class UsersController {
     const { username, password } = req.body;
     try{
       const user = await Users.findOne({
-        attributes: ['password', 'user_uid', 'role'],
+        attributes: ['password', 'user_uid', 'school_uid', 'role'],
         where: {
             username
         }
       });
       if (!user) return res.status(404).json({status: 'failure', error: "No User Found"});
-      const userData = user.dataValues;
-      const match =  await bcrypt.compare(password, userData.password);
+      const match =  await bcrypt.compare(password, user.password);
       if (match) {
         const userSession = {
-          user_uid: userData.user_uid,
-          role: userData.role,
+          user_uid: user.user_uid,
+          role: user.role,
+          school_uid: user.school_uid
         }
         req.session = userSession
         return res.status(200).json({
