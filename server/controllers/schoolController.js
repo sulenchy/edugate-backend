@@ -1,6 +1,6 @@
 import models from '../models';
 
-const { Schools } = models;
+const { Schools, Users } = models;
 
 /**
  * @class SchoolsController
@@ -17,7 +17,6 @@ class SchoolsController {
         const { school_name, address_line_1, address_line_2, country, city, postal_code } = req.body;
         const admin_uid = req.session.user_uid;
         const { role } = req.session;
-
         try {
             // catches unauthorised user
             if (!admin_uid) {
@@ -38,6 +37,15 @@ class SchoolsController {
                     school_name, admin_uid, address_line_1, address_line_2, country, city, postal_code
                 });
             if (school) {
+                if (role === 'admin') {
+                  const { school_uid } = school;
+                  await Users.update({ school_uid }, {
+                    where: {
+                      user_uid: admin_uid
+                    }
+                  })
+                  req.session.school_uid = school_uid;
+                }
 
                 return res.status(201).json({
                     status: 'success',

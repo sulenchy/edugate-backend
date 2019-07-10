@@ -19,7 +19,7 @@ module.exports = {
       },
       school_uid:{
         allowNull: true,
-        type:Sequelize.INTEGER,
+        type:Sequelize.UUID,
       },
       dob: {
         allowNull: true,
