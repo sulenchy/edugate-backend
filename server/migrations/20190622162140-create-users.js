@@ -42,7 +42,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       username: {
-        allowNull: false,
+        allowNull: true,
         type: Sequelize.STRING
       },
       email: {

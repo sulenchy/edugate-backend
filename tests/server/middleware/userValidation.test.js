@@ -12,7 +12,7 @@ import {
     userDataWithInvalidPassword,
     userDataWithAnExistingEmail,
     loginUserDataWithEmptyFields,
-    loginUserDataWithEmptyUsername,
+    loginUserDataWithEmptyEmail,
     loginUserDataWithEmptyPassword,
     loginUserDataWithInvalidPassword
 } from '../../mockData/userMockData';
@@ -40,7 +40,7 @@ describe('User signup validation unit tests', () => {
                     password,
                     phone_number: '07038015455',
                     username: 'jamsgra',
-                    email: 'John.doe@gmail.com',
+                    email: 'john.doe@gmail.com',
                 })
                     .then(() => done())
             })
@@ -200,6 +200,10 @@ describe('User signup validation unit tests', () => {
                 .end((err, res) => {
                     res.body.should.be.eql({
                         errors: {
+                            email: [
+                                'please enter email',
+                                'please enter a valid email'
+                            ],
                             password: [
                                 'must be at least 5 chars long',
                                 'must contain a number'
@@ -215,12 +219,13 @@ describe('User signup validation unit tests', () => {
         (done) => {
             chai.request(app)
                 .post(loginUrl)
-                .send(loginUserDataWithEmptyUsername)
+                .send(loginUserDataWithEmptyEmail)
                 .end((err, res) => {
                     res.body.should.be.eql({
                         errors: {
-                            username: [
-                                'please enter username',
+                            email: [
+                                'please enter email',
+                                'please enter a valid email'
                             ]
                         }
                     });

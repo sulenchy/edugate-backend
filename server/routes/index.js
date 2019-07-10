@@ -6,7 +6,7 @@ import UserValidator from '../middlewares/userValidation';
 import AddUsersValidation from '../middlewares/addUsersValidation';
 import SchoolValidator from '../middlewares/schoolValidation';
 import AddResultsValidation from '../middlewares/addResultsValidation';
-import {checkUserIsLoggedIn, checkUserRole} from '../middlewares/checkUser';
+import { checkUserIsLoggedIn, checkUserRole } from '../middlewares/checkUser';
 
 
 const router = express.Router();

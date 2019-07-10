@@ -9,7 +9,7 @@ const { Users } = models;
  */
 class UsersController {
   /**
- * @description
+ * @description - creates admin user
  * @param {object} req - request object
  * @param {object} res - response object
  * @returns {object} - returns user
@@ -27,8 +27,7 @@ class UsersController {
           first_name,
           last_name,
           password,
-          role,
-          username
+          role
         });
       if (user) {
         const userSession = {
@@ -55,21 +54,20 @@ class UsersController {
   }
 
   /**
-  * @description
+  * @description - logs in the users(ADMIN, TEACHER & STUDENT) using his or her password and username
   * @param {object} req - request object
   * @param {object} res - response object
   * @returns {object} - returns user
   */
   static async login(req, res) {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
     try {
       const user = await Users.findOne({
         attributes: ['password', 'user_uid', 'school_uid', 'role'],
         where: {
-          username
+          email
         }
       });
-<<<<<<< HEAD
       if (!user) return res.status(404).json({status: 'failure', error: "No User Found"});
       const match =  await bcrypt.compare(password, user.password);
       if (match) {
@@ -77,22 +75,13 @@ class UsersController {
           user_uid: user.user_uid,
           role: user.role,
           school_uid: user.school_uid
-=======
-      if (!user) return res.status(404).json({ status: 'failure', error: "No User Found" });
-      const userData = user.dataValues;
-      const match = await bcrypt.compare(password, userData.password);
-      if (match) {
-        const userSession = {
-          user_uid: userData.user_uid,
-          role: userData.role,
-          school_uid: userData.school_uid
->>>>>>> ft(get-user): fix some issues on add user functionality
         }
         req.session = userSession;
 
         return res.status(200).json({
           status: 'success',
           message: 'User logged in successfully.',
+          userSession
         });
       }
       return res.status(401).json({
@@ -106,7 +95,7 @@ class UsersController {
   }
 
   /**
-   * 
+   * @description - creates username for a user
    * @param {*} first_name 
    * @param {*} last_name 
    */
@@ -117,7 +106,7 @@ class UsersController {
   }
 
   /**
-   * 
+   * @description - creates password and encrypt it
    */
   static createPassword() {
     const randomString = (Math.random().toString(36).slice(-10)).slice(0, 5);
@@ -126,15 +115,15 @@ class UsersController {
   }
 
   /**
-   * 
+   * @description - create a list of user via a spreadsheet
    * @param {*} req 
    * @param {*} res 
    */
   static async addUsers(req, res) {
     const { users } = res.locals;
     for (let user of users) {
-      const { first_name, last_name } = user;
-      user.username = UsersController.createUsername(first_name, last_name);
+      // const { first_name, last_name } = user;
+      // user.username = UsersController.createUsername(first_name, last_name);
       user.password = UsersController.createPassword();
       user.school_uid = req.session.school_uid;
     }
@@ -174,13 +163,14 @@ class UsersController {
       if (role) {
         userList = await Users.findAll({
           where: {
-            role,
+            role: 'student',
             school_uid
           }
         });
       } else {
         userList = await Users.findAll({
           where: {
+            role: 'student',
             school_uid
           }
         });
@@ -189,7 +179,7 @@ class UsersController {
       if (userList) {
         return res.status(200).json({
           status: 'success',
-          messaage: 'User(s) successfully retrieved',
+          message: 'User(s) successfully retrieved',
           userList
         })
       }

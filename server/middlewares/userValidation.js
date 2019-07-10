@@ -16,7 +16,7 @@ class UserValidation {
     * @static
     */
   static validateUserLogin(req, res, next) {
-    UserValidation.validateUsername(req);
+    UserValidation.validateEmail(req);
     UserValidation.validatePassword(req);
     UserValidation.sendFormattedError(req, res, next);
   }

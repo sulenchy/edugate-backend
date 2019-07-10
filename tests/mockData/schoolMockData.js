@@ -48,7 +48,8 @@ export const schoolDataWithValidFields = {
     address_line_2: '',
     city: 'london',
     country: 'england',
-    postal_code: 'ehfgd'
+    postal_code: 'ehfgd',
+    email: 'edu.gate@gmail.com'
 };
 
 export const schoolDataWithEmptyCountryFields = {

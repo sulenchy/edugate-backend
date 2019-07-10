@@ -8,13 +8,13 @@ const { Schools, Users } = models;
  */
 class SchoolsController {
   /**
- * @description
+ * @description - creates a new school for an admin 
  * @param {object} req - request object
  * @param {object} res - response object
  * @returns {object} - returns user
  */
   static async create(req, res) {
-    const { school_name, address_line_1, address_line_2, country, city, postal_code } = req.body;
+    const { school_name, address_line_1, address_line_2, country, city, postal_code, email } = req.body;
     const admin_uid = req.session.user_uid;
     const { role, school_uid } = req.session;
     try {
@@ -26,7 +26,6 @@ class SchoolsController {
         })
       }
 
-      if (school_uid) {
       // check if the admin has a school already or not
       if(school_uid){
         return res.status(409).json({
@@ -43,7 +42,7 @@ class SchoolsController {
       }
       const school = await Schools
         .create({
-          school_name, admin_uid, address_line_1, address_line_2, country, city, postal_code
+          school_name, admin_uid, address_line_1, address_line_2, country, city, postal_code, email
         });
       if (school) {
         if (role === 'admin') {
@@ -71,8 +70,6 @@ class SchoolsController {
         })
     }
   }
-
-
 }
 
 export default SchoolsController;

@@ -36,7 +36,7 @@ export default (sequelize, DataTypes) => {
       type: DataTypes.STRING,
     },
     username: {
-      allowNull: false,
+      allowNull: true,
       type: DataTypes.STRING,
     },
     email: {

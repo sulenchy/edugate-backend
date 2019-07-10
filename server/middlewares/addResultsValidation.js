@@ -1,10 +1,10 @@
 import ExcelValidators from '../helpers/excelValidators';
 import formatExcel from '../helpers/formatExcel';
-import usernameToUid from '../helpers/usernameToUid';
+import emailToUid from '../helpers/emailToUid';
 import sendError from '../helpers/sendError';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow'
 
-const dataInputs = ['username', 'year', 'term', 'subject', 'exam', 'mark', 'grade'];
+const dataInputs = ['email', 'year', 'term', 'subject', 'exam', 'mark', 'grade'];
 
 class addResultsValidation {
 
@@ -28,7 +28,7 @@ class addResultsValidation {
 
       if (Object.keys(inputErrs).length) return sendError(res, 422, convertIndexToExcelRow(inputErrs));
 
-      results = await usernameToUid(results);
+      results = await emailToUid(results);
       const uidErrs = ExcelValidators.checkUid(results);
 
       if (Object.keys(uidErrs).length) return sendError(res, 422, convertIndexToExcelRow(uidErrs))
@@ -58,7 +58,7 @@ class addResultsValidation {
         const value = results[i][input];
         let inputError = ExcelValidators.checkEmptyInput(value);
         const validatorKey = {
-          username: ExcelValidators.isAlphanumeric(value),
+          email: ExcelValidators.validateEmail(value),
           year: ExcelValidators.validateYear(value),
           term: ExcelValidators.validateTerm(value),
           subject: ExcelValidators.isAlphanumeric(value),
