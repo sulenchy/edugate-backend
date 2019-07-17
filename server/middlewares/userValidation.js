@@ -58,18 +58,6 @@ class UserValidation {
     * @memberOf UserValidation
     * @static
     */
-   static validateUsername(req) {
-    req.checkBody('username', 'please enter username').exists();
-  }
-
-
-  /**
-    * @description - This method validates the email
-    * @param {object} req - The request object
-    * @returns {null} - returns nothing
-    * @memberOf UserValidation
-    * @static
-    */
   static validatePassword(req) {
     req.checkBody('password', 'please enter password').exists();
     req.checkBody('password', 'please enter a valid password').isLength({ min: 5 }).withMessage('must be at least 5 chars long')

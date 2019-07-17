@@ -41,7 +41,6 @@ describe("User Controller", () => {
                 role: 'admin',
                 password: bcrypt.hashSync('1234567', 10),
                 phone_number: '07038015455',
-                username: 'jamsgra',
                 email: 'jamsgra.doey@gmail.com',
             });
         } catch (err) {
@@ -62,13 +61,10 @@ describe("User Controller", () => {
                 .post(signupUrl)
                 .send(userDataSignupValidData)
                 .end((err, res) => {
-                    const { username } = res.body;
                     res.body.should.be.eql({
                         message: "New account created successfully.",
                         status: "success",
-                        username
                     });
-                    tempUsername = username
                 });
         });
     })

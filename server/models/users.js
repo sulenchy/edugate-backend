@@ -35,10 +35,6 @@ export default (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.STRING,
     },
-    username: {
-      allowNull: true,
-      type: DataTypes.STRING,
-    },
     email: {
       allowNull: false,
       unique: {

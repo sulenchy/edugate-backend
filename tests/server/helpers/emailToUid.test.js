@@ -20,7 +20,6 @@ describe('emailToUid', () => {
         role: 'admin',
         password: 'testing',
         phone_number: '07038015455',
-        username: 'jamsgra',
         email: 'john.doe@gmail.com',
       });
     } catch(err){
@@ -46,7 +45,7 @@ describe('emailToUid', () => {
       { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608' },
       { user_uid: null },
     ]
-    
+
     results[0].user_uid.should.be.a('string');
     results[1].should.be.eql(expected[1]);
     results[2].user_uid.should.be.a('string');

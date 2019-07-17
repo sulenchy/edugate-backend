@@ -39,7 +39,6 @@ describe('User signup validation unit tests', () => {
                     role: 'admin',
                     password,
                     phone_number: '07038015455',
-                    username: 'jamsgra',
                     email: 'john.doe@gmail.com',
                 })
                     .then(() => done())
@@ -49,7 +48,6 @@ describe('User signup validation unit tests', () => {
     after((done) => {
         Users.destroy({
             where: {
-                username: 'jamsgra'
             }
         }).then(() => done())
     })
@@ -215,7 +213,7 @@ describe('User signup validation unit tests', () => {
         }
     );
     it(
-        'should return error if user does not provide username',
+        'should return error if user does not provide email',
         (done) => {
             chai.request(app)
                 .post(loginUrl)

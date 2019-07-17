@@ -19,7 +19,6 @@ class UsersController {
     let { password } = req.body;
     password = bcrypt.hashSync(password, 10);
     const role = 'admin';
-    const username = UsersController.createUsername(first_name, last_name);
     try {
       const user = await Users
         .create({
@@ -40,7 +39,6 @@ class UsersController {
         return res.status(201).json({
           status: 'success',
           message: 'New account created successfully.',
-          username,
         });
       }
     } catch (err) {
@@ -54,7 +52,7 @@ class UsersController {
   }
 
   /**
-  * @description - logs in the users(ADMIN, TEACHER & STUDENT) using his or her password and username
+  * @description - logs in the users(ADMIN, TEACHER & STUDENT) using his or her password and email
   * @param {object} req - request object
   * @param {object} res - response object
   * @returns {object} - returns user
@@ -95,17 +93,6 @@ class UsersController {
   }
 
   /**
-   * @description - creates username for a user
-   * @param {*} first_name 
-   * @param {*} last_name 
-   */
-  static createUsername(first_name, last_name) {
-    const randomString = (Math.random().toString(36).slice(-10)).slice(0, 2);
-    const username = `${first_name}${last_name}${randomString}`;
-    return username;
-  }
-
-  /**
    * @description - creates password and encrypt it
    */
   static createPassword() {
@@ -116,14 +103,12 @@ class UsersController {
 
   /**
    * @description - create a list of user via a spreadsheet
-   * @param {*} req 
-   * @param {*} res 
+   * @param {*} req
+   * @param {*} res
    */
   static async addUsers(req, res) {
     const { users } = res.locals;
     for (let user of users) {
-      // const { first_name, last_name } = user;
-      // user.username = UsersController.createUsername(first_name, last_name);
       user.password = UsersController.createPassword();
       user.school_uid = req.session.school_uid;
     }
@@ -150,8 +135,8 @@ class UsersController {
 
   /**
    * gets users from the the users table and also filters based on role
-   * @param {*} req 
-   * @param {*} res 
+   * @param {*} req
+   * @param {*} res
    */
   static async getUsers(req, res) {
     // gets role parameter from request param

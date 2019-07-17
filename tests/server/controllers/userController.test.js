@@ -22,7 +22,6 @@ const loginUrl = '/api/v1/users/login';
 const addUsersUrl = '/api/v1/users/addusers';
 const getUsersUrl = '/api/v1/users';
 
-let tempUsername = '';
 let userSession = '';
 
 
@@ -39,7 +38,6 @@ describe("User Controller", () => {
                 role: 'admin',
                 password: bcrypt.hashSync('1234567', 10),
                 phone_number: '07038015455',
-                username: 'jamsgra',
                 email: 'jamsgra.doey@gmail.com',
             });
         } catch (err) {
@@ -57,13 +55,10 @@ describe("User Controller", () => {
                 .post(signupUrl)
                 .send(userDataSignupValidData)
                 .end((err, res) => {
-                    const { username } = res.body;
                     res.body.should.be.eql({
                         message: "New account created successfully.",
                         status: "success",
-                        username
                     });
-                    tempUsername = username
                 });
         });
     })
@@ -136,7 +131,7 @@ describe("User Controller", () => {
                     });
                 });
         })
-        
+
     })
     describe('Get Users API endpoint', () => {
         it('should not get all users', async () => {
@@ -149,7 +144,7 @@ describe("User Controller", () => {
                     res.body.message.should.be.eql('Please, Login');
                 })
         })
-        
+
         it('should login successfully', async () => {
             chai.request(app)
                 .post(loginUrl)

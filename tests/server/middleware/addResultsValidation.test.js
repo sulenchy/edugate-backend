@@ -27,7 +27,6 @@ describe('Add results validation unit tests', () => {
         role: 'admin',
         password: bcrypt.hashSync('1234567', 10),
         phone_number: '07038015455',
-        username: 'jamsgra',
         email: 'john.doe@gmail.com',
       });
     } catch(err){
@@ -51,7 +50,7 @@ describe('Add results validation unit tests', () => {
     } catch(err) {
       return err
     }
-      
+
   })
 
   before(() => {
