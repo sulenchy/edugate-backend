@@ -16,7 +16,7 @@ class UserValidation {
     * @static
     */
   static validateUserLogin(req, res, next) {
-    UserValidation.validateUsername(req);
+    UserValidation.validateEmail(req);
     UserValidation.validatePassword(req);
     UserValidation.sendFormattedError(req, res, next);
   }
@@ -50,18 +50,6 @@ class UserValidation {
     req.checkBody('email', 'please enter email').exists();
     req.checkBody('email', 'please enter a valid email').isEmail();
   }
-
-  /**
-    * @description - This method validates the email
-    * @param {object} req - The request object
-    * @returns {null} - returns nothing
-    * @memberOf UserValidation
-    * @static
-    */
-   static validateUsername(req) {
-    req.checkBody('username', 'please enter username').exists();
-  }
-
 
   /**
     * @description - This method validates the email

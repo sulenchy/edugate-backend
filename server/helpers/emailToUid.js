@@ -2,20 +2,20 @@ import models from '../models';
 
 const { Users } = models;
 
-async function usernameToUid(results) {
+async function emailToUid(results) {
   try {
     let usersSearched = {};
     for (let result of results) {
-      const { username } = result;
-      const searched = usersSearched[username];
+      const { email } = result;
+      const searched = usersSearched[email];
       if (searched) {
         result.user_uid = searched !== 'Not found' ? searched : null;
       } else {
-        const user = await findUserUid(username);
+        const user = await findUserUid(email);
         result.user_uid = user ? user.user_uid : null;
-        usersSearched[username] = result.user_uid || 'Not found';
+        usersSearched[email] = result.user_uid || 'Not found';
       }
-      delete result.username;
+      delete result.email;
     }
     return results;
   } catch(err) {
@@ -23,11 +23,11 @@ async function usernameToUid(results) {
   }
 }
 
-const findUserUid = (username) => Users.findOne({
+const findUserUid = (email) => Users.findOne({
   where: {
-    username
+    email
   }
 });
 
 
-export default usernameToUid;
+export default emailToUid;

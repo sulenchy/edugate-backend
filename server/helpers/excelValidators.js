@@ -80,6 +80,12 @@ class ExcelValidators {
     }
   }
 
+  static isEmail(value) {
+    if(!Validator.isEmail(value)) {
+      return 'Should be valid email'
+    }
+  }
+
   static checkUid(results) {
     let errs = {};
     for (let i = 0; i < results.length; i++) {

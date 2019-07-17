@@ -13,7 +13,9 @@ export const userDataWithEmptyFields = {
     password: ''
 };
 export const userDataSignupValidData = {
-    email: 'John.do@gmail.com',
+    email: 'john.doe@gmail.com',
+    first_name: 'john',
+    last_name: 'doe',
     password: '123testing'
 };
 
@@ -22,32 +24,37 @@ export const userDataWithInvalidPassword = {
     password: 'testing'
 };
 export const userDataWithInvalidEmail = {
-    email: 'James.grant',
+    email: 'james.grant',
     password: '12testing'
 };
 
 export const userDataWithInvalidFields = {
-    email: 'James.grant',
+    email: 'james.grant',
     password: 'testing'
 };
 
 export const userDataWithAnExistingEmail = {
-    email: 'John.doe@gmail.com',
+    email: 'john.doe@gmail.com',
     password: '123testing'
-}
+};
 
 export const loginUserDataWithEmptyFields = {
-    username: '',
+    Email: '',
     password: ''
-}
-export const loginUserDataWithEmptyUsername = {
+};
+export const loginUserDataWithEmptyEmail = {
     password: '123testing'
-}
+};
 export const loginUserDataWithEmptyPassword = {
-    username: 'Jamsgra',
+    email: 'john.doe@gmail.com',
     password: ''
-}
+};
 export const loginUserDataWithInvalidPassword = {
-    username: 'Jamsgra',
+    email: 'john.doe@gmail.com',
     password: 'testing'
-}
+};
+
+export const userDataLoginValidData = {
+    email: 'john.doe@gmail.com',
+    password: '123testing'
+};

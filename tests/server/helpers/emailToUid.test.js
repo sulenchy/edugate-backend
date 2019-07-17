@@ -1,14 +1,15 @@
 import chai from 'chai';
-import usernameToUid from '../../../server/helpers/usernameToUid';
-import db from '../../../server/models/index'
+import emailToUid from '../../../server/helpers/emailToUid';
+import db from '../../../server/models'
 
 chai.should();
 
 const { Users } = db;
 
 
-describe('usernameToUid', () => {
+describe('emailToUid', () => {
   before(async() => {
+    try{
       await Users.create({
         user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
         school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
@@ -19,30 +20,36 @@ describe('usernameToUid', () => {
         role: 'admin',
         password: 'testing',
         phone_number: '07038015455',
-        username: 'jamsgra',
-        email: 'John.doe@gmail.com',
+        email: 'john.doe@gmail.com',
       });
+    } catch(err){
+      return err
+    }
   })
 
   after(async() => {
       await Users.destroy({where:{}})
   })
 
-  it('should convert username to uid', async() => {
+  it('should convert email to uid', async() => {
     const mockData = [
-      { username: 'jamsgra' },
-      { username: 'jamaskasfa' },
-      { username: 'jamsgra' },
-      { username: 'jamaskasfa' }
+      { email: 'john.doe@gmail.com' },
+      { email: 'jamaskasfa' },
+      { email: 'john.doe@gmail.com' },
+      { email: 'jamaskasfa' }
     ]
-
+    const results = await emailToUid(mockData);
     const expected = [
       { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608' },
       { user_uid: null },
       { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608' },
       { user_uid: null },
     ]
-    const results = await usernameToUid(mockData);
-    results.should.be.eql(expected);
+
+    results[0].user_uid.should.be.a('string');
+    results[1].should.be.eql(expected[1]);
+    results[2].user_uid.should.be.a('string');
+    results[3].should.be.eql(expected[3]);
+
   })
 })

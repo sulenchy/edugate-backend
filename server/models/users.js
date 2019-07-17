@@ -35,12 +35,12 @@ export default (sequelize, DataTypes) => {
       allowNull: true,
       type: DataTypes.STRING,
     },
-    username: {
-      allowNull: false,
-      type: DataTypes.STRING,
-    },
     email: {
-      allowNull: true,
+      allowNull: false,
+      unique: {
+        args: true,
+        msg: 'Email address already in use!'
+    },
       type: DataTypes.STRING,
     },
   },{});

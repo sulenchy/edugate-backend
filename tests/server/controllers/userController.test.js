@@ -6,8 +6,11 @@ import bcrypt from 'bcryptjs';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
-    userDataSignupValidData
+    userDataSignupValidData,
+    userDataLoginValidData
 } from '../../mockData/userMockData';
+
+let mockSession = require('mock-session');
 
 chai.use(chaiHttp);
 chai.should();
@@ -17,108 +20,184 @@ const { Users } = db;
 const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
 const addUsersUrl = '/api/v1/users/addusers';
+const getUsersUrlStudent = '/api/v1/users/student';
+const getUsersUrlTeacher = '/api/v1/users/teacher';
+const getUsersUrlInvalid = '/api/v1/users/stu';
 
-let tempUsername = '';
+let userSession = '';
 
 
 describe("User Controller", () => {
-    let agent = chai.request.agent(app)
-    before(async() => {
-        await Users.create({
-          user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-          school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-          first_name: 'John',
-          last_name: 'Doe',
-          dob: new Date(),
-          year_of_graduation: '2020',
-          role: 'admin',
-          password: bcrypt.hashSync('1234567', 10),
-          phone_number: '07038015455',
-          username: 'jamsgra',
-          email: 'John.doe@gmail.com',
-        });
+    before(async () => {
+        try {
+            await Users.create({
+                user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
+                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
+                first_name: 'John',
+                last_name: 'Doe',
+                dob: new Date(),
+                year_of_graduation: '2020',
+                role: 'admin',
+                password: bcrypt.hashSync('1234567', 10),
+                phone_number: '07038015455',
+                email: 'jamsgra.doey@gmail.com',
+            });
+        } catch (err) {
+            return err;
+        }
+
     })
-
-
-    after(async() => {
-        await Users.destroy({where:{}})
-        agent.close()
+    after(async () => {
+        await Users.destroy({ where: {} })
     })
 
     describe("Signup Route", () => {
-        it('should signup successfully', (done) => {
+        it('should signup successfully', async () => {
             chai.request(app)
                 .post(signupUrl)
                 .send(userDataSignupValidData)
                 .end((err, res) => {
-                    const { username } = res.body;
                     res.body.should.be.eql({
                         message: "New account created successfully.",
                         status: "success",
-                        username
                     });
-                    tempUsername = username
-                    done();
                 });
         });
     })
 
     describe("Login Route", () => {
-        it('should login successfully', (done) => {
+        it('should login successfully', async () => {
             chai.request(app)
                 .post(loginUrl)
-                .send({username: tempUsername, password: '123testing'})
+                .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
                 .end((err, res) => {
+                    userSession = res.body.userSession
                     res.body.should.be.eql({
-                        message: "User logged in successfully.",
                         status: "success",
+                        message: "User logged in successfully.",
+                        userSession
                     });
-                    done();
                 });
         });
-        it('should login successfully', (done) => {
+
+        it('should respond with password incorrect', (done) => {
             chai.request(app)
                 .post(loginUrl)
-                .send({username: tempUsername, password: '1testing'})
+                .send({ email: 'jamsgra.doey@gmail.com', password: '1testing' })
                 .end((err, res) => {
                     res.body.should.be.eql({
                         status: 'failure',
                         error: 'Password is incorrect'
                     });
-                    done();
                 });
+
+            done()
         });
-        it('should throw error if password is not correct', (done) => {
+
+        it('should throw error if password is not correct', async () => {
             chai.request(app)
                 .post(loginUrl)
-                .send({username: 'tempUsername', password: '12testing'})
+                .send({ email: 'john.e@gmail.com', password: '12testing' })
                 .end((err, res) => {
                     res.body.should.be.eql({
                         status: 'failure',
                         error: 'No User Found'
                     });
-                    done();
                 });
         });
     })
 
     describe('Add users', () => {
-      it('should add all users', (done) => {
-        agent
-          .post(loginUrl)
-          .send({ username: 'jamsgra', password: '1234567' })
-          .then(function() {
-            return agent
-            .post(addUsersUrl)
-            .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataValid.xlsx')), 'addUsersDataValid.xlsx')
-            .then((res) => {
-                res.body.should.be.eql({
-                  status: 'success',
-                  message: '3 new User accounts created successfully.'
+        it('should login the second user', async () => {
+            chai.request(app)
+                .post(loginUrl)
+                .send(userDataLoginValidData)
+                .end((err, res) => {
+                    userSession = res.body.userSession
+                    res.body.should.be.eql({
+                        status: "success",
+                        message: "User logged in successfully.",
+                        userSession
+                    });
                 });
-                done();
-            });
-          }).catch(err => console.log(err))
+
         })
-      })
+        it('should all users', async () => {
+            const req = chai.request(app)
+                .post(addUsersUrl)
+                .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataValid.xlsx')), 'addUsersDataValid.xlsx')
+                .end((err, res) => {
+                    res.body.should.be.eql({
+                        status: 'success',
+                        message: '3 new User accounts created successfully.'
+                    });
+                });
+        })
+
+    })
+    describe('Get Users API endpoint', () => {
+        it('should not get all users', async () => {
+            let cookie = '';
+            chai.request(app)
+                .get(getUsersUrlTeacher)
+                .set('cookie', [cookie])
+                .end((err, res) => {
+                    console.log("line 143", res.body)
+                    res.body.status.should.be.eql('failure');
+                    res.body.message.should.be.eql('Please, Login');
+                })
+        })
+
+        it('should login successfully', async () => {
+            chai.request(app)
+                .post(loginUrl)
+                .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+                .end((err, res) => {
+                    userSession = res.body.userSession
+                    res.body.should.be.eql({
+                        status: "success",
+                        message: "User logged in successfully.",
+                        userSession
+                    });
+                });
+        });
+
+
+        it('should get all users', async () => {
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            const agent = chai.request(app);
+            agent
+                .get(getUsersUrlStudent)
+                .set('cookie', [cookie])
+                .end((err, res) => {
+                    res.body.status.should.be.eql('success');
+                    res.body.message.should.be.eql('User(s) successfully retrieved');
+                    res.body.userList.should.be.an('array');
+                })
+        })
+        it('should get all users', async () => {
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            const agent = chai.request(app);
+            agent
+                .get(getUsersUrlTeacher)
+                .set('cookie', [cookie])
+                .end((err, res) => {
+                    res.body.status.should.be.eql('success');
+                    res.body.message.should.be.eql('User(s) successfully retrieved');
+                    res.body.userList.should.be.an('array');
+                })
+        })
+        it('should not get users', async () => {
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            const agent = chai.request(app);
+            agent
+                .get(getUsersUrlInvalid)
+                .set('cookie', [cookie])
+                .end((err, res) => {
+                    res.body.status.should.be.eql('failure');
+                    res.body.message.should.be.eql('Sorry, invalid data supplied. Please enter valid data.');
+                    // res.body.userList.should.be.an('array');
+                })
+        })
+    })
 })
