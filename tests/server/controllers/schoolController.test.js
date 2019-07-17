@@ -77,7 +77,7 @@ describe("School Controller", () => {
                 });
         });
         it('should creates school successfully', async () => {
-            let cookie = mockSession('session', 'FGAHSGDBJHS', userSession);
+            let cookie = mockSession('session', process.env.SECRET, userSession);
                 chai.request(app)
                 .post(createSchoolUrl)
                 .set('cookie', [cookie])

@@ -91,7 +91,7 @@ describe("User Controller", () => {
 
     describe('Add users', () => {
         it('should add results successfully', async () => {
-            let cookie = mockSession('session', 'FGAHSGDBJHS', userSession);
+            let cookie = mockSession('session', process.env.SECRET, userSession);
             const agent = chai.request(app);
             agent
                             .post(addResultsUrl)

@@ -166,7 +166,7 @@ describe("User Controller", () => {
 
 
         it('should get all users', async () => {
-            let cookie = mockSession('session', 'FGAHSGDBJHS', userSession);
+            let cookie = mockSession('session', process.env.SECRET, userSession);
             const agent = chai.request(app);
             agent
                 .get(getUsersUrl)
