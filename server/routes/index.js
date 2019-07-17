@@ -14,7 +14,7 @@ const router = express.Router();
 router.get('/', (req, res) => res.send('Welcome to EduGate!'))
 
 router.get('/api/v1/users/logout', UserController.logout);
-router.get('/api/v1/users', checkUserIsLoggedIn, checkUserRole, UserController.getUsers);
+router.get('/api/v1/users/:role', checkUserIsLoggedIn, checkUserRole, UserController.getUsers);
 router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
 router.post('/api/v1/users/signup', UserValidator.validateUserSignUp, UserValidator.checkExistingEmail, UserController.signUp);
 router.post('/api/v1/users/addusers', AddUsersValidation.validateAddUsers, UserController.addUsers);

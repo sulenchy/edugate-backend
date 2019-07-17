@@ -20,7 +20,9 @@ const { Users } = db;
 const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
 const addUsersUrl = '/api/v1/users/addusers';
-const getUsersUrl = '/api/v1/users';
+const getUsersUrlStudent = '/api/v1/users/student';
+const getUsersUrlTeacher = '/api/v1/users/teacher';
+const getUsersUrlInvalid = '/api/v1/users/stu';
 
 let userSession = '';
 
@@ -137,9 +139,10 @@ describe("User Controller", () => {
         it('should not get all users', async () => {
             let cookie = '';
             chai.request(app)
-                .get(getUsersUrl)
+                .get(getUsersUrlTeacher)
                 .set('cookie', [cookie])
                 .end((err, res) => {
+                    console.log("line 143", res.body)
                     res.body.status.should.be.eql('failure');
                     res.body.message.should.be.eql('Please, Login');
                 })
@@ -164,12 +167,36 @@ describe("User Controller", () => {
             let cookie = mockSession('session', process.env.SECRET, userSession);
             const agent = chai.request(app);
             agent
-                .get(getUsersUrl)
+                .get(getUsersUrlStudent)
                 .set('cookie', [cookie])
                 .end((err, res) => {
                     res.body.status.should.be.eql('success');
                     res.body.message.should.be.eql('User(s) successfully retrieved');
                     res.body.userList.should.be.an('array');
+                })
+        })
+        it('should get all users', async () => {
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            const agent = chai.request(app);
+            agent
+                .get(getUsersUrlTeacher)
+                .set('cookie', [cookie])
+                .end((err, res) => {
+                    res.body.status.should.be.eql('success');
+                    res.body.message.should.be.eql('User(s) successfully retrieved');
+                    res.body.userList.should.be.an('array');
+                })
+        })
+        it('should not get users', async () => {
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            const agent = chai.request(app);
+            agent
+                .get(getUsersUrlInvalid)
+                .set('cookie', [cookie])
+                .end((err, res) => {
+                    res.body.status.should.be.eql('failure');
+                    res.body.message.should.be.eql('Sorry, invalid data supplied. Please enter valid data.');
+                    // res.body.userList.should.be.an('array');
                 })
         })
     })

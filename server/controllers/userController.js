@@ -66,8 +66,8 @@ class UsersController {
           email
         }
       });
-      if (!user) return res.status(404).json({status: 'failure', error: "No User Found"});
-      const match =  await bcrypt.compare(password, user.password);
+      if (!user) return res.status(404).json({ status: 'failure', error: "No User Found" });
+      const match = await bcrypt.compare(password, user.password);
       if (match) {
         const userSession = {
           user_uid: user.user_uid,
@@ -140,34 +140,32 @@ class UsersController {
    */
   static async getUsers(req, res) {
     // gets role parameter from request param
-    let { role } = req.param;
+    let { role } = req.params;
 
     try {
       let userList = null;
-      const { school_uid, user_uid } = req.session;
+      const { school_uid } = req.session;
+
+      if (!['student', 'teacher'].includes(role)) {
+        return res.status(422).json({
+          status: 'failure',
+          message: 'Sorry, invalid data supplied. Please enter valid data.'
+        })
+      }
       if (role) {
         userList = await Users.findAll({
           where: {
-            role: 'student',
-            school_uid
-          }
-        });
-      } else {
-        userList = await Users.findAll({
-          where: {
-            role: 'student',
+            role,
             school_uid
           }
         });
       }
 
-      if (userList) {
-        return res.status(200).json({
-          status: 'success',
-          message: 'User(s) successfully retrieved',
-          userList
-        })
-      }
+      return res.status(200).json({
+        status: 'success',
+        message: 'User(s) successfully retrieved',
+        userList
+      })
     }
     catch (error) {
       return res.status(500)

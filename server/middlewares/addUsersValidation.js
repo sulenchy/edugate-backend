@@ -49,9 +49,11 @@ class addUsersValidation {
           phone_number: ExcelValidators.validatePhone(value),
           email: ExcelValidators.validateEmail(value)
         };
-        inputError = ['phone_number', 'email'].includes(input) ?
-        (inputError = inputError ? '' : validatorKey[input]) :
-        (inputError = inputError ? inputError : validatorKey[input])
+        if (['phone_number'].includes(input)) {
+          inputError = inputError ? '' : validatorKey[input]
+        } else {
+          inputError = inputError ? inputError : validatorKey[input]
+        }
         if (inputError) userErrors[input] = inputError;
       }
     if (Object.keys(userErrors).length) errors[userRow] = userErrors;

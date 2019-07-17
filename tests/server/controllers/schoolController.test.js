@@ -35,7 +35,6 @@ describe("School Controller", () => {
                 role: 'admin',
                 password: bcrypt.hashSync('1234567', 10),
                 phone_number: '07038015455',
-                username: 'jamsgra',
                 email: 'jamsgra.doey@gmail.com',
             });
         } catch (err) {

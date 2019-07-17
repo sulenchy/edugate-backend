@@ -73,7 +73,7 @@ describe('Add users validation unit tests', () => {
         .end((err, res) => {
           res.body.should.be.eql({
             status: 'failure',
-            error: { 2: { last_name: 'Cannot be empty'}}
+            error: { 2: { last_name: 'Cannot be empty', email: 'Cannot be empty'}}
           });
           res.status.should.be.eql(422);
           done();
