@@ -17,8 +17,8 @@ router.get('/api/v1/users/logout', UserController.logout);
 router.get('/api/v1/users/:role', checkUserIsLoggedIn, checkUserRole, UserController.getUsers);
 router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
 router.post('/api/v1/users/signup', UserValidator.validateUserSignUp, UserValidator.checkExistingEmail, UserController.signUp);
-router.post('/api/v1/users/addusers', AddUsersValidation.validateAddUsers, UserController.addUsers);
-router.post('/api/v1/schools/create', SchoolValidator.validateSchoolCreate, SchoolController.create);
-router.post('/api/v1/results/addresults', AddResultsValidation.validateAddResults, ResultsController.addResults);
+router.post('/api/v1/users/addusers', checkUserIsLoggedIn, checkUserRole, AddUsersValidation.validateAddUsers, UserController.addUsers);
+router.post('/api/v1/schools/create', checkUserIsLoggedIn, checkUserRole, SchoolValidator.validateSchoolCreate, SchoolController.create);
+router.post('/api/v1/results/addresults', checkUserIsLoggedIn, checkUserRole, AddResultsValidation.validateAddResults, ResultsController.addResults);
 
 export default router;

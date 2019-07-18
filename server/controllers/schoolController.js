@@ -18,14 +18,6 @@ class SchoolsController {
     const admin_uid = req.session.user_uid;
     const { role, school_uid } = req.session;
     try {
-      // catches unauthorised user
-      if (!admin_uid) {
-        return res.status(401).json({
-          status: 'failure',
-          error: 'Please log in to create a school'
-        })
-      }
-
       // check if the admin has a school already or not
       if(school_uid){
         return res.status(409).json({

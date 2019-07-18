@@ -90,7 +90,7 @@ class ExcelValidators {
     let errs = {};
     for (let i = 0; i < results.length; i++) {
       if (!results[i].user_uid) {
-        errs[i] = 'Username not found'
+        errs[i] = 'User not found'
       }
     }
     return errs;

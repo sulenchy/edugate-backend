@@ -56,7 +56,7 @@ describe("School Controller", () => {
                 .end((err, res) => {
                     res.body.should.be.eql({
                         status: 'failure',
-                        error: 'Please log in to create a school'
+                        message: 'Please, Login'
                     });
                     done();
                 });
