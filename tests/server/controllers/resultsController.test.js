@@ -5,35 +5,25 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
-import {
-    userDataSignupValidData,
-    userDataLoginValidData
-} from '../../mockData/userMockData';
 
 let mockSession = require('mock-session');
 
 chai.use(chaiHttp);
 chai.should();
 
-const { Users } = db;
+const { Users, Results } = db;
 
-const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
-const addUsersUrl = '/api/v1/users/addusers';
 const addResultsUrl = '/api/v1/results/addresults';
-const getUsersUrl = '/api/v1/users';
 
-let tempUsername = '';
 let userSession = '';
 
-
-describe("User Controller", () => {
-    let agent = chai.request.agent(app)
+describe("Results Controller", () => {
     before(async () => {
         try {
             await Users.create({
                 user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
+                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
                 first_name: 'John',
                 last_name: 'Doe',
                 dob: new Date(),
@@ -46,60 +36,61 @@ describe("User Controller", () => {
         } catch (err) {
             return err;
         }
+    })
 
+    before((done) => {
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+          .end((err, res) => {
+              userSession = res.body.userSession
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              done();
+      });
     })
 
 
     after(async () => {
         await Users.destroy({ where: {} })
-        agent.close()
+        await Results.destroy({ where: {}})
     })
 
-    describe("Signup Route", () => {
-        it('should signup successfully', async () => {
-            chai.request(app)
-                .post(signupUrl)
-                .send(userDataSignupValidData)
-                .end((err, res) => {
-                    res.body.should.be.eql({
-                        message: "New account created successfully.",
-                        status: "success",
-                    });
-                });
-        });
-    })
-
-    describe("Login Route", () => {
-        it('should login successfully', async () => {
-            chai.request(app)
-                .post(loginUrl)
-                .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
-                .end((err, res) => {
-                    userSession = res.body.userSession
-                    res.body.should.be.eql({
-                        status: "success",
-                        message: "User logged in successfully.",
-                        userSession
-                    });
-                });
-        });
-    })
-
-    describe('Add users', () => {
-        it('should add results successfully', async () => {
+    describe('Add results', () => {
+        it('should add results successfully', (done) => {
             let cookie = mockSession('session', process.env.SECRET, userSession);
-            const agent = chai.request(app);
-            agent
-                            .post(addResultsUrl)
-                            .set('cookie', [cookie])
-                            .attach('addResults', fs.readFileSync(path.join(__dirname, '../../mockData/addResultsDataValid.xlsx')), 'addResultsDataValid.xlsx')
-                            .end((err, res) => {
-                                res.status.should.be.eql(201)
-                                res.body.should.be.eql({
-                                    status: 'success',
-                                    message: '1 results successfully added.'
-                                });
-                            });
+            chai.request(app)
+                .post(addResultsUrl)
+                .set('cookie', [cookie])
+                .attach('addResults', fs.readFileSync(path.join(__dirname, '../../mockData/addResultsDataValid.xlsx')), 'addResultsDataValid.xlsx')
+                .end((err, res) => {
+                    res.status.should.be.eql(201)
+                    res.body.should.be.eql({
+                        status: 'success',
+                        message: '1 results successfully added.'
+                        });
+                    done();
+                });
+          });
+          it('should add results successfully & return any duplicates', (done) => {
+              let cookie = mockSession('session', process.env.SECRET, userSession);
+              const agent = chai.request(app);
+              agent
+                  .post(addResultsUrl)
+                  .set('cookie', [cookie])
+                  .attach('addResults', fs.readFileSync(path.join(__dirname, '../../mockData/addResultsDataTableDuplicate.xlsx')), 'addResultsDataTableDuplicate.xlsx')
+                  .end((err, res) => {
+                      res.status.should.be.eql(201)
+                      res.body.should.be.eql({
+                      status: 'success',
+                      message: '1 results successfully added.',
+                      duplicates: { 2: 'Duplicate record found'}
+                      });
+                      done();
                     });
-    })
-})
+          });
+        })
+      })
