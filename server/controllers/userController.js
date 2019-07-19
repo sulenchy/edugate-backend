@@ -1,5 +1,7 @@
 import bcrypt from 'bcryptjs';
 import models from '../models';
+import removeDuplicates from '../helpers/removeDuplicates';
+import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 
 const { Users } = models;
 
@@ -107,21 +109,25 @@ class UsersController {
    * @param {*} res
    */
   static async addUsers(req, res) {
-    const { users } = res.locals;
-    for (let user of users) {
-      user.password = UsersController.createPassword();
-      user.school_uid = req.session.school_uid;
-    }
     try {
+      const { users, duplicates } = res.locals;
+      for (let user of users) {
+        user.password = UsersController.createPassword();
+      }
+      const uniqueUsers = removeDuplicates(users, duplicates);
       const newUsers = await Users
         .bulkCreate(
-          users
+          uniqueUsers
         );
       if (newUsers) {
-        return res.status(201).json({
+        const resObj = {
           status: 'success',
-          message: `${users.length} new User accounts created successfully.`
-        });
+          message: `${Object.keys(uniqueUsers).length} new User accounts created successfully.`
+        }
+        if (Object.keys(duplicates).length) {
+          resObj.duplicates = convertIndexToExcelRow(duplicates);
+        }
+        return res.status(201).json(resObj);
       }
     } catch (err) {
       return res.status(500)
