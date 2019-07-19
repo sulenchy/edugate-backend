@@ -48,6 +48,10 @@ export default (sequelize, DataTypes) => {
     // associations can be defined here
     Users.belongsTo(models.Schools, {
       foreignKey: 'school_uid',
+    }),
+    Users.hasMany(models.Results, {
+      foreignKey: 'user_uid',
+      onDelete: 'CASCADE'
     })
   };
   return Users;

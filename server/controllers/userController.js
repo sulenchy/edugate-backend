@@ -1,5 +1,9 @@
 import bcrypt from 'bcryptjs';
 import models from '../models';
+import removeDuplicates from '../helpers/removeDuplicates';
+import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
+import { toLowerCase } from '../helpers/convertToLowerCase';
+import sendError from '../helpers/sendError.js';
 
 const { Users } = models;
 
@@ -15,7 +19,7 @@ class UsersController {
  * @returns {object} - returns user
  */
   static async signUp(req, res) {
-    const { email, first_name, last_name } = req.body;
+    const { email, first_name, last_name } = toLowerCase(req.body);
     let { password } = req.body;
     password = bcrypt.hashSync(password, 10);
     const role = 'admin';
@@ -42,12 +46,7 @@ class UsersController {
         });
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 
@@ -58,7 +57,8 @@ class UsersController {
   * @returns {object} - returns user
   */
   static async login(req, res) {
-    const { email, password } = req.body;
+    const { email } = toLowerCase(req.body);
+    const { password } = req.body;
     try {
       const user = await Users.findOne({
         attributes: ['password', 'user_uid', 'school_uid', 'role'],
@@ -66,7 +66,7 @@ class UsersController {
           email
         }
       });
-      if (!user) return res.status(404).json({ status: 'failure', error: "No User Found" });
+      if (!user) return sendError(res, 404, "No User Found");
       const match = await bcrypt.compare(password, user.password);
       if (match) {
         const userSession = {
@@ -82,13 +82,10 @@ class UsersController {
           userSession
         });
       }
-      return res.status(401).json({
-        status: 'failure',
-        error: "Password is incorrect"
-      })
+      return sendError(res, 401, "Password is incorrect")
     }
     catch (err) {
-      res.status(500).json({ err });
+      return sendError(res, 500, err);
     }
   }
 
@@ -107,29 +104,28 @@ class UsersController {
    * @param {*} res
    */
   static async addUsers(req, res) {
-    const { users } = res.locals;
-    for (let user of users) {
-      user.password = UsersController.createPassword();
-      user.school_uid = req.session.school_uid;
-    }
     try {
+      const { users, duplicates } = res.locals;
+      for (let user of users) {
+        user.password = UsersController.createPassword();
+      }
+      const uniqueUsers = removeDuplicates(users, duplicates);
       const newUsers = await Users
         .bulkCreate(
-          users
+          uniqueUsers
         );
       if (newUsers) {
-        return res.status(201).json({
+        const resObj = {
           status: 'success',
-          message: `${users.length} new User accounts created successfully.`
-        });
+          message: `${Object.keys(uniqueUsers).length} new User accounts created successfully.`
+        }
+        if (Object.keys(duplicates).length) {
+          resObj.duplicates = convertIndexToExcelRow(duplicates);
+        }
+        return res.status(201).json(resObj);
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 
@@ -140,22 +136,20 @@ class UsersController {
    */
   static async getUsers(req, res) {
     // gets role parameter from request param
-    let { role } = req.params;
+    let { query } = req.params;
 
     try {
       let userList = null;
-      const { school_uid } = req.session;
+      const { school_uid, role } = req.session;
 
-      if (!['student', 'teacher'].includes(role)) {
-        return res.status(422).json({
-          status: 'failure',
-          message: 'Sorry, invalid data supplied. Please enter valid data.'
-        })
+      if (!['student', 'teacher'].includes(query)) {
+        return sendError(res, 422, 'Sorry, invalid data supplied. Please enter valid data.')
       }
       if (role) {
         userList = await Users.findAll({
+          attributes: ['user_uid', 'first_name','last_name','dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
           where: {
-            role,
+            role: query,
             school_uid
           }
         });
@@ -167,13 +161,36 @@ class UsersController {
         userList
       })
     }
-    catch (error) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [error.message]
-          },
+    catch (err) {
+      return sendError(res, 500, err)
+    }
+  }
+
+  static async updateUser(req, res) {
+    try {
+      const { email, first_name, last_name, dob, year_of_graduation, phone_number, role } = res.locals.user;
+      const loggedInUserRole = req.session.role;
+      const updateData = { first_name, last_name, dob, year_of_graduation, phone_number };
+      // only admin & super admin can change a user's role
+      if (['admin', 'super admin'].includes(loggedInUserRole)) {
+        updateData.role = role;
+      }
+      const updatedUser = await Users.update(updateData, {
+        where: {
+          email
+        },
+        returning: true
+      })
+      if (updatedUser) {
+        let updatedInfo = updatedUser[1][0];
+        return res.status(200).json({
+          status: 'success',
+          message: 'User successfully updated',
+          updatedUser: updatedInfo.email
         })
+      }
+    } catch(err) {
+        sendError(res, 500, err)
     }
   }
 
@@ -182,7 +199,7 @@ class UsersController {
       req.session = null;
       return res.status(200).json({
         status: 'success',
-        messaage: 'User logout successfully'
+        message: 'User logout successfully'
       })
     }
   }

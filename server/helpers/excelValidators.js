@@ -2,7 +2,7 @@ import path from 'path';
 import Validator from 'validator';
 import db from '../models/index.js';
 
-const { Results } = db;
+const { Results, Users } = db;
 
 class ExcelValidators {
   static checkFileType(file) {
@@ -47,7 +47,7 @@ class ExcelValidators {
   }
 
   static validateRole(role) {
-    if (role !== 'teacher' && role !== 'student') {
+    if (!['student', 'teacher', 'admin', 'super admin'].includes(role)) {
       return 'Invalid role'
     }
   }
@@ -80,17 +80,11 @@ class ExcelValidators {
     }
   }
 
-  static isEmail(value) {
-    if(!Validator.isEmail(value)) {
-      return 'Should be valid email'
-    }
-  }
-
   static checkUid(results) {
     let errs = {};
     for (let i = 0; i < results.length; i++) {
       if (!results[i].user_uid) {
-        errs[i] = 'Username not found'
+        errs[i] = 'User not found'
       }
     }
     return errs;
@@ -121,6 +115,47 @@ class ExcelValidators {
     return results;
   }
 
+<<<<<<< HEAD
+  static numbersToString(data) {
+    for (let record of data) {
+      for (let input of Object.keys(record)) {
+        if (typeof record[input] === "number") {
+=======
+  static dataToString(data) {
+    for (let record of data) {
+      for (let input of Object.keys(record)) {
+        if (typeof record[input] !== "string") {
+>>>>>>> b22e322... Ft: updateUser validation checks
+          const stringData = record[input].toString();
+          record[input] = stringData;
+        }
+      }
+    }
+    return data;
+  }
+
+  static checkString(value) {
+    if (typeof value !== "string") {
+      return "Should be a string"
+    }
+  }
+
+  static checkStringsInObjs(data) {
+    let errs = {};
+    for (let i = 0; i < data.length; i++) {
+      let recordErrs = {};
+      for (let input of Object.keys(data[i])) {
+        if (typeof data[i][input] !== "string") {
+          recordErrs[input] = "Should be a string"
+        }
+      }
+      if (Object.keys(recordErrs).length) {
+        errs[i] = recordErrs;
+      }
+    }
+    return errs;
+  }
+
   static async checkResultTableDuplicate(results) {
     try {
       let errs = {};
@@ -129,6 +164,26 @@ class ExcelValidators {
         const found = await Results.findOne({
           where: {
             student_result_id,
+          }
+        })
+        if (found) {
+          errs[i] = 'Duplicate record found'
+        }
+      }
+      return errs;
+    } catch(err) {
+      return `Error reading result table: ${err}`
+    }
+  }
+
+  static async checkUserTableDuplicate(users) {
+    try {
+      let errs = {};
+      for (let i = 0; i < users.length; i++) {
+        const { email } = users[i];
+        const found = await Users.findOne({
+          where: {
+            email,
           }
         })
         if (found) {
