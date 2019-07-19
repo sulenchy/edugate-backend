@@ -146,13 +146,13 @@ class UsersController {
    */
   static async getUsers(req, res) {
     // gets role parameter from request param
-    let { role } = req.params;
+    let { query } = req.params;
 
     try {
       let userList = null;
-      const { school_uid } = req.session;
+      const { school_uid, role } = req.session;
 
-      if (!['student', 'teacher'].includes(role)) {
+      if (!['student', 'teacher'].includes(query)) {
         return res.status(422).json({
           status: 'failure',
           message: 'Sorry, invalid data supplied. Please enter valid data.'
@@ -160,8 +160,9 @@ class UsersController {
       }
       if (role) {
         userList = await Users.findAll({
+          attributes: ['user_uid', 'first_name','last_name','dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
           where: {
-            role,
+            role: query,
             school_uid
           }
         });
