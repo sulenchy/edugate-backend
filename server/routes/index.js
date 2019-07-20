@@ -1,8 +1,13 @@
 import express from 'express';
 import UserController from '../controllers/userController';
 import UserValidator from '../middlewares/userValidation';
-import adminPriviledgeRouter from './adminPriviledge';
+import adminPrivilegeRouter from './adminPriviledge';
 import teacherPrivilegeRouter from './teacherPriviledge';
+import { checkUserIsLoggedIn, 
+    checkTeacherPrivilege,
+    checkAdminPrivilege 
+} 
+    from '../middlewares/checkUser';
 
 
 const router = express.Router();
@@ -11,11 +16,18 @@ router.get('/', (req, res) => res.send('Welcome to EduGate!'))
 
 router.get('/api/v1/users/logout', UserController.logout);
 
-router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
 router.post('/api/v1/users/signup', UserValidator.validateUserSignUp, UserValidator.checkExistingEmail, UserController.signUp);
 
-router.use(adminPriviledgeRouter);
-router.use(teacherPrivilegeRouter)
+router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
+
+router.use(checkUserIsLoggedIn);
+
+router.use(checkTeacherPrivilege);
+router.use(teacherPrivilegeRouter);
+
+router.use(checkAdminPrivilege);
+router.use(adminPrivilegeRouter);
+
 
 
 export default router;

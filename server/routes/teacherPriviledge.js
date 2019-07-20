@@ -2,16 +2,15 @@ import express from 'express';
 import UserController from '../controllers/userController';
 import ResultsController from '../controllers/resultsController';
 import AddResultsValidation from '../middlewares/addResultsValidation';
-import { checkUserIsLoggedIn, 
-    checkTeacherAndAboveTole, } 
+import { checkIfUserHasSchool } 
     from '../middlewares/checkUser';
 
 const router = express.Router();
 
 // get students from the database
-router.get('/api/v1/users/:query', checkUserIsLoggedIn, checkTeacherAndAboveTole, UserController.getUsers);
+router.get('/api/v1/users/:query', checkIfUserHasSchool, UserController.getUsers);
 
 // adds new result to the database
-router.post('/api/v1/results/addresults', checkUserIsLoggedIn, checkTeacherAndAboveTole, AddResultsValidation.validateAddResults, ResultsController.addResults);
+router.post('/api/v1/results/addresults', checkIfUserHasSchool, AddResultsValidation.validateAddResults, ResultsController.addResults);
 
 export default router;

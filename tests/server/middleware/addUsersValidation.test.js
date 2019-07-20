@@ -3,9 +3,10 @@ import chaiHttp from 'chai-http';
 import bcrypt from 'bcryptjs';
 import fs from 'fs';
 import path from 'path';
-import bcrypt from 'bcryptjs';
+import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index';
+
 
 chai.use(chaiHttp);
 chai.should();
@@ -14,6 +15,8 @@ const { Users } = db;
 
 const addUsersUrl = '/api/v1/users/addusers';
 const loginUrl = '/api/v1/users/login';
+
+let userSession = ''
 
 describe('Add users validation unit tests', () => {
 
@@ -70,7 +73,7 @@ describe('Add users validation unit tests', () => {
   
     it('should give error if no file sent', async () => {
       let cookie = mockSession('session', process.env.SECRET, userSession);
-      const req = chai.request(app)
+      chai.request(app)
         .post(addUsersUrl)
         .set('cookie', [cookie])
         .end((err, res) => {
@@ -172,8 +175,10 @@ describe('Add users validation unit tests', () => {
   })
 
   it('should give error when duplicates in excel file', async() => {
+    let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addUsersUrl)
+        .set('cookie', [cookie])
         .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataFileDuplicates.xlsx')), 'addUsersDataFileDuplicates.xlsx')
         .end((err, res) => {
           res.body.should.be.eql({

@@ -1,6 +1,7 @@
 import chai from 'chai';
 import chaiHttp from 'chai-http';
 import bcrypt from 'bcryptjs';
+import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
@@ -11,7 +12,7 @@ import {
     schoolDataWithEmptyPostalCode,
 } from '../../mockData/schoolMockData'
 
-let mockSession = require('mock-session');
+
 
 chai.use(chaiHttp);
 chai.should();

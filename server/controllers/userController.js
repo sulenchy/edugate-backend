@@ -71,6 +71,8 @@ class UsersController {
       if (!user) return res.status(404).json({ status: 'failure', error: "No User Found" });
       const match = await bcrypt.compare(password, user.password);
       if (match) {
+
+        
         const userSession = {
           user_uid: user.user_uid,
           role: user.role,

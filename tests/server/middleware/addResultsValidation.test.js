@@ -2,11 +2,11 @@ import chai from 'chai';
 import chaiHttp from 'chai-http';
 import fs from 'fs';
 import bcrypt from 'bcryptjs';
+import mockSession from 'mock-session'
 import path from 'path';
 import app from '../../../server/app';
 import db from '../../../server/models/index';
 
-let mockSession = require('mock-session');
 
 const loginUrl = '/api/v1/users/login';
 const addResultsUrl = '/api/v1/results/addresults';
