@@ -2,7 +2,7 @@ import path from 'path';
 import Validator from 'validator';
 import db from '../models/index.js';
 
-const { Results } = db;
+const { Results, Users } = db;
 
 class ExcelValidators {
   static checkFileType(file) {
@@ -129,6 +129,26 @@ class ExcelValidators {
         const found = await Results.findOne({
           where: {
             student_result_id,
+          }
+        })
+        if (found) {
+          errs[i] = 'Duplicate record found'
+        }
+      }
+      return errs;
+    } catch(err) {
+      return `Error reading result table: ${err}`
+    }
+  }
+
+  static async checkUserTableDuplicate(users) {
+    try {
+      let errs = {};
+      for (let i = 0; i < users.length; i++) {
+        const { email } = users[i];
+        const found = await Users.findOne({
+          where: {
+            email,
           }
         })
         if (found) {

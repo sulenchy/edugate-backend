@@ -15,7 +15,6 @@ chai.use(chaiHttp);
 chai.should();
 
 describe('Add results validation unit tests', () => {
-  let agent = chai.request.agent(app)
   before(async() => {
     try{
       await Users.create({
@@ -50,26 +49,12 @@ describe('Add results validation unit tests', () => {
     } catch(err) {
       return err
     }
-
   })
-
-  before(() => {
-    agent
-      .post(loginUrl)
-      .send({ email: 'john.doe@gmail.com', password: '1234567' })
-      .then(function (res) {
-        res.body.should.be.eql({
-          message: "User logged in successfully.",
-          status: "success",
-        })
-      }).catch(err => console.log(err))
-  });
 
   after(async() => {
       await Schools.destroy({where:{}})
       await Users.destroy({where:{}})
       await Results.destroy({where:{}})
-      agent.close()
   })
 
   it('should give error if no file sent', async() => {

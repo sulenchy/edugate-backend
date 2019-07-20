@@ -7,29 +7,38 @@ const dataInputs = ['first_name', 'last_name', 'dob', 'year_of_graduation', 'rol
 
 class addUsersValidation {
 
-  static validateAddUsers(req, res, next) {
-    if (!req.files || !Object.keys(req.files).length) return sendError(res, 400, 'No files were uploaded');
+  static async validateAddUsers(req, res, next) {
+    try {
+      if (!req.files || !Object.keys(req.files).length) return sendError(res, 400, 'No files were uploaded');
 
-    const file = req.files.addUsers;
+      const file = req.files.addUsers;
 
-    if (!file || !Object.keys(file).length) return sendError(res, 400, 'Incorrect file name');
+      if (!file || !Object.keys(file).length) return sendError(res, 400, 'Incorrect file name');
 
-    if (!ExcelValidators.checkFileType(file)) return sendError(res, 422, 'Wrong file type');
+      if (!ExcelValidators.checkFileType(file)) return sendError(res, 422, 'Wrong file type');
 
-    let users = formatExcel(file);
+      let users = formatExcel(file);
 
-    if (ExcelValidators.checkEmptySheet(users)) return sendError(res, 422, 'File does not contain users');
+      if (ExcelValidators.checkEmptySheet(users)) return sendError(res, 422, 'File does not contain users');
 
-    if (!ExcelValidators.checkCorrectFormat(users, dataInputs)) return sendError(res, 422, 'Data is in incorrect format. Please use template');
+      if (!ExcelValidators.checkCorrectFormat(users, dataInputs)) return sendError(res, 422, 'Data is in incorrect format. Please use template');
 
-    const inputErrs = addUsersValidation.checkInputs(users);
+      const inputErrs = addUsersValidation.checkInputs(users);
 
-    if (Object.keys(inputErrs).length) return sendError(res, 422, convertIndexToExcelRow(inputErrs));
+      if (Object.keys(inputErrs).length) return sendError(res, 422, convertIndexToExcelRow(inputErrs));
 
-    users = ExcelValidators.addSchoolUid(users, req.session.school_uid);
-    users = ExcelValidators.emptyToNull(users, dataInputs);
-    res.locals.users = users;
-    next();
+      const fileDuplicates = ExcelValidators.checkFileDuplicates(users, 'email');
+
+      if (Object.keys(fileDuplicates).length) return sendError(res, 422, ExcelValidators.fileDuplicateMessage(fileDuplicates));
+
+      users = ExcelValidators.addSchoolUid(users, req.session.school_uid);
+      users = ExcelValidators.emptyToNull(users, dataInputs);
+      res.locals.duplicates = await ExcelValidators.checkUserTableDuplicate(users);
+      res.locals.users = users;
+      next();
+    } catch(err) {
+      return sendError(res, 500, err.message);
+    }
   }
 
   static checkInputs(users) {
