@@ -12,7 +12,7 @@ export const checkAdminPrivilege = (req, res, next) => {
     if (!['admin', 'super admin'].includes(req.session.role)) {
         return res.status(401).json({
             status: 'failure',
-            message: 'Sorry, you do not have the required priviledge'
+            message: 'Sorry, you do not have the required privilege'
         })
     }
     next();
@@ -25,7 +25,7 @@ export const checkTeacherPrivilege = (req, res, next) => {
     if (!['Teacher', 'admin', 'super admin'].includes(role)) {
         return res.status(401).json({
             status: 'failure',
-            message: 'Sorry, you do not have the required priviledge'
+            message: 'Sorry, you do not have the required privilege'
         })
     }
 
@@ -33,7 +33,7 @@ export const checkTeacherPrivilege = (req, res, next) => {
     if (role === 'teacher' && query === 'teacher') {
         return res.status(401).json({
             status: 'failure',
-            message: 'Sorry, you do not have the required priviledge'
+            message: 'Sorry, you do not have the required privilege'
         })
     }
 

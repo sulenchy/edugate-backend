@@ -1,12 +1,12 @@
 import express from 'express';
 import UserController from '../controllers/userController';
 import UserValidator from '../middlewares/userValidation';
-import adminPrivilegeRouter from './adminPriviledge';
-import teacherPrivilegeRouter from './teacherPriviledge';
-import { checkUserIsLoggedIn, 
+import adminPrivilegeRouter from './adminPrivilege';
+import teacherPrivilegeRouter from './teacherPrivilege';
+import { checkUserIsLoggedIn,
     checkTeacherPrivilege,
-    checkAdminPrivilege 
-} 
+    checkAdminPrivilege
+}
     from '../middlewares/checkUser';
 
 

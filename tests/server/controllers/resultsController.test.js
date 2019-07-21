@@ -76,7 +76,7 @@ describe("Results Controller", () => {
                     done();
                 });
         });
-   
+
         it('should add results successfully', (done) => {
             let cookie = mockSession('session', process.env.SECRET, userSession);
             chai.request(app)
