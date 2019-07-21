@@ -56,9 +56,10 @@ class ResultsController {
       const subject = req.query.subject;
 
 
-      const clause = { 
+      const clause = {
         attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id', 'user_uid'],
-        where: {} };
+        where: {}
+      };
 
       clause.where.school_uid = req.session.school_uid;
 
@@ -76,7 +77,63 @@ class ResultsController {
 
       const results = await Results.findAll(
         clause
-        )
+      )
+
+      return res.status(200).json({
+        status: 'success',
+        message: 'Result retrieved successfully.',
+        results
+      })
+    }
+    catch (err) {
+      return res.status(500)
+        .json({
+          status: 'failure',
+          errors: {
+            message: [err.message]
+          },
+        })
+    }
+  }
+
+  /**
+ * @description - get result for students
+ * @param {object} req - request object
+ * @param {object} res - response object
+ * @returns {object} - returns results
+ */
+  static async getUserResults(req, res) {
+    try {
+      const term = req.query.term;
+      const year = req.query.year;
+      const subject = req.query.subject;
+
+
+      const clause = {
+        attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
+        where: {}
+      };
+
+
+      const { school_uid, user_uid } = req.session;
+      clause.where.school_uid = school_uid;
+      clause.where.user_uid = user_uid;
+
+      if (term) {
+        clause.where.term = term;
+      }
+
+      if (year) {
+        clause.where.year = year;
+      }
+
+      if (subject) {
+        clause.where.subject = subject;
+      }
+
+      const results = await Results.findAll(
+        clause
+      )
 
       return res.status(200).json({
         status: 'success',

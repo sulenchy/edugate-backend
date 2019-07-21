@@ -18,11 +18,20 @@ export const checkAdminPrivilege = (req, res, next) => {
     next();
 }
 
+export const checkStudentPrivilege = (req, res, next) => {
+    if (!['student'].includes(req.session.role)) {
+        return res.status(401).json({
+            status: 'failure',
+            message: 'Sorry, you do not have the required privilege ======='
+        })
+    }
+    next();
+}
 
 export const checkTeacherPrivilege = (req, res, next) => {
     const { query } = req.params;
     const { role } = req.session;
-    if (!['Teacher', 'admin', 'super admin'].includes(role)) {
+    if (!['teacher', 'admin', 'super admin'].includes(role)) {
         return res.status(401).json({
             status: 'failure',
             message: 'Sorry, you do not have the required privilege'
