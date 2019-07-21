@@ -191,7 +191,7 @@ class UsersController {
       req.session = null;
       return res.status(200).json({
         status: 'success',
-        messaage: 'User logout successfully'
+        message: 'User logout successfully'
       })
     }
   }
