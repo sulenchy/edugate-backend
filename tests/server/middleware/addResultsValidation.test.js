@@ -31,7 +31,7 @@ describe('Add results validation unit tests', () => {
         role: 'admin',
         password: bcrypt.hashSync('1234567', 10),
         phone_number: '07038015455',
-        email: 'jamsgra.doey@gmail.com',
+        email: 'john.doe@gmail.com',
       });
     } catch(err) {
       return err
@@ -47,7 +47,7 @@ describe('Add results validation unit tests', () => {
   it('should login successfully', (done) => {
     chai.request(app)
         .post(loginUrl)
-        .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+        .send({ email: 'john.doe@gmail.com', password: '1234567' })
         .end((err, res) => {
             userSession = res.body.userSession
             res.body.should.be.eql({
@@ -55,11 +55,11 @@ describe('Add results validation unit tests', () => {
                 message: "User logged in successfully.",
                 userSession
             });
-            done()
+            done();
         });
 });
 
-  it('should give error if no file sent', async() => {
+  it('should give error if no file sent', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -70,9 +70,10 @@ describe('Add results validation unit tests', () => {
             status: 'failure',
             error: 'No files were uploaded'
           });
+          done();
         })
   })
-  it('should give error when user is unauthorised', async() => {
+  it('should give error when user is unauthorised', (done) => {
     let cookie = mockSession('session', process.env.SECRET, 'userSession');
     chai.request(app)
         .post(addResultsUrl)
@@ -83,10 +84,11 @@ describe('Add results validation unit tests', () => {
             status: 'failure',
             message: 'Please, Login'
           });
+          done();
         })
   })
 
-  it('should give error if file not correct type', async() => {
+  it('should give error if file not correct type', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -98,10 +100,11 @@ describe('Add results validation unit tests', () => {
             error: 'Wrong file type'
           });
           res.status.should.be.eql(422);
+          done();
         })
   })
 
-  it('should give error if file not in correct format', async() => {
+  it('should give error if file not in correct format', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -113,10 +116,11 @@ describe('Add results validation unit tests', () => {
             error: 'Data is in incorrect format. Please use template'
           });
           res.status.should.be.eql(422);
+          done();
         })
   })
 
-  it('should give error if file does not contain results', async() => {
+  it('should give error if file does not contain results', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -128,10 +132,11 @@ describe('Add results validation unit tests', () => {
             error: 'File does not contain results'
           });
           res.status.should.be.eql(422);
+          done();
         })
   })
 
-  it('should give error if missing required results inputs', async() => {
+  it('should give error if missing required results inputs', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -143,10 +148,11 @@ describe('Add results validation unit tests', () => {
             error: { 2: { email: 'Cannot be empty'}}
           });
           res.status.should.be.eql(422);
+          done()
         })
   })
 
-  it('should give error if missing required user inputs', async() => {
+  it('should give error if missing required user inputs', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -165,10 +171,11 @@ describe('Add results validation unit tests', () => {
             }
           });
           res.status.should.be.eql(422);
+          done();
         })
   })
 
-  it('should give error if invalid user', async() => {
+  it('should give error if invalid user', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -182,10 +189,11 @@ describe('Add results validation unit tests', () => {
             },
           });
           res.status.should.be.eql(422);
+          done();
         })
   })
 
-  it('should give error when duplicates in excel file', async() => {
+  it('should give error when duplicates is in excel file', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
         .post(addResultsUrl)
@@ -195,13 +203,13 @@ describe('Add results validation unit tests', () => {
           res.body.should.be.eql({
             status: 'failure',
             error: {
-              "2": "User not found",
-              "3": "User not found",
-              "4": "User not found",
-              "5": "User not found"
+              duplicates: [
+                [2, 3, 4, 5],
+              ],
             },
           });
           res.status.should.be.eql(422);
+          done();
         })
   });
 

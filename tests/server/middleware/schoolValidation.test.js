@@ -67,7 +67,7 @@ describe('School create validation unit tests', () => {
             });
     });
     
-    it('should return error if school name is empty', async() => {
+    it('should return error if school name is empty', (done) => {
         let cookie = mockSession('session', process.env.SECRET, 'userSession');
         chai.request(app)
             .post(schoolCreateUrl)
@@ -78,11 +78,11 @@ describe('School create validation unit tests', () => {
                     status: 'failure',
                     message: 'Please, Login'
                 });
-
+                done();
             });
     });
 
-    it('should return error if school name is empty', async() => {
+    it('should return error if school name is empty', (done) => {
         let cookie = mockSession('session', process.env.SECRET, userSession);
         chai.request(app)
             .post(schoolCreateUrl)
@@ -94,11 +94,11 @@ describe('School create validation unit tests', () => {
                         school_name: ['must be at least 2 letters long']
                     }
                 });
-
+                done();
             });
     });
 
-    it('should return error if address line 1 is empty', async() => {
+    it('should return error if address line 1 is empty', (done) => {
         let cookie = mockSession('session', process.env.SECRET, userSession);
         chai.request(app)
             .post(schoolCreateUrl)
@@ -110,11 +110,11 @@ describe('School create validation unit tests', () => {
                         address_line_1: ['must be at least 5 letters long']
                     }
                 });
-
+                done();
             });
     });
 
-    it('should return error if city is empty', async() => {
+    it('should return error if city is empty', (done) => {
         let cookie = mockSession('session', process.env.SECRET, userSession);
         chai.request(app)
             .post(schoolCreateUrl)
@@ -126,11 +126,11 @@ describe('School create validation unit tests', () => {
                         city: ['must be at least 2 letters long']
                     }
                 });
-
+                done();
             });
     });
 
-    it('should return error if all fields are empty', async() => {
+    it('should return error if all fields are empty', (done) => {
         let cookie = mockSession('session', process.env.SECRET, userSession);
         chai.request(app)
             .post(schoolCreateUrl)
@@ -145,11 +145,11 @@ describe('School create validation unit tests', () => {
                         postal_code: ['must be at least 2 letters long']
                     }
                 });
-
-            });
+                done();
+            }); 
     });
 
-    it('should return error if all postal code field is empty', async() => {
+    it('should return error if all postal code field is empty', (done) => {
         let cookie = mockSession('session', process.env.SECRET, userSession);
         chai.request(app)
             .post(schoolCreateUrl)
@@ -158,14 +158,11 @@ describe('School create validation unit tests', () => {
             .end((err, res) => {
                 res.body.should.be.eql({
                     errors: {
-                        postal_code: ['please enter postal code','must be at least 2 letters long'
-                        
+                        postal_code: ['please enter postal code','must be at least 2 letters long'   
                     ]
                     }
                 });
-
+                done();
             });
     });
-
-
 })
