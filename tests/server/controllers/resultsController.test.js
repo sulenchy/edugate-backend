@@ -3,10 +3,11 @@ import chaiHttp from 'chai-http';
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
 
-let mockSession = require('mock-session');
+
 
 chai.use(chaiHttp);
 chai.should();
@@ -54,7 +55,7 @@ describe("Results Controller", () => {
     })
 
 
-    after(async () => {
+    after(async() => {
         await Users.destroy({ where: {} })
         await Results.destroy({ where: {}})
     })
@@ -74,23 +75,25 @@ describe("Results Controller", () => {
                         });
                     done();
                 });
-          });
-          it('should add results successfully & return any duplicates', (done) => {
-              let cookie = mockSession('session', process.env.SECRET, userSession);
-              const agent = chai.request(app);
-              agent
-                  .post(addResultsUrl)
-                  .set('cookie', [cookie])
-                  .attach('addResults', fs.readFileSync(path.join(__dirname, '../../mockData/addResultsDataTableDuplicate.xlsx')), 'addResultsDataTableDuplicate.xlsx')
-                  .end((err, res) => {
-                      res.status.should.be.eql(201)
-                      res.body.should.be.eql({
-                      status: 'success',
-                      message: '1 results successfully added.',
-                      duplicates: { 2: 'Duplicate record found'}
-                      });
-                      done();
+        });
+
+        it('should add results successfully', (done) => {
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            chai.request(app)
+                            .post(addResultsUrl)
+                            .set('cookie', [cookie])
+                            .attach('addResults', fs.readFileSync(path.join(__dirname, '../../mockData/addResultsDataTableDuplicate.xlsx')), 'addResultsDataTableDuplicate.xlsx')
+                            .end((err, res) => {
+                                res.status.should.be.eql(201)
+                                res.body.should.be.eql({
+                                    status: 'success',
+                                    message: '1 results successfully added.',
+                                    duplicates: {
+                                        2: 'Duplicate record found'
+                                    }
+                                });
+                                done()
+                            });
                     });
           });
         })
-      })

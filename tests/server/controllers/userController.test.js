@@ -3,14 +3,12 @@ import chaiHttp from 'chai-http';
 import fs from 'fs';
 import path from 'path';
 import bcrypt from 'bcryptjs';
+import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
-    userDataSignupValidData,
-    userDataLoginValidData
+    userDataSignupValidData
 } from '../../mockData/userMockData';
-
-let mockSession = require('mock-session');
 
 chai.use(chaiHttp);
 chai.should();
@@ -48,18 +46,18 @@ describe("User Controller", () => {
     })
 
     before((done) => {
-      chai.request(app)
-          .post(loginUrl)
-          .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
-          .end((err, res) => {
-              userSession = res.body.userSession
-              res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
-                  userSession
-              });
-              done();
-      });
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+            .end((err, res) => {
+                userSession = res.body.userSession
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                done();
+            });
     })
 
     after(async () => {
@@ -93,7 +91,7 @@ describe("User Controller", () => {
                         message: "User logged in successfully.",
                         userSession
                     });
-                  done();
+                    done();
                 });
         });
 
@@ -106,9 +104,9 @@ describe("User Controller", () => {
                         status: 'failure',
                         error: 'Password is incorrect'
                     });
+                    done()
                 });
 
-            done()
         });
 
         it('should throw error if email is not correct', (done) => {
@@ -127,34 +125,34 @@ describe("User Controller", () => {
 
     describe('Add users', () => {
         it('should add all users', (done) => {
-          let cookie = mockSession('session', process.env.SECRET, userSession);
-          const req = chai.request(app)
-              .post(addUsersUrl)
-              .set('cookie', [cookie])
-              .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataValid.xlsx')), 'addUsersDataValid.xlsx')
-              .end((err, res) => {
-                  res.body.should.be.eql({
-                      status: 'success',
-                      message: '3 new User accounts created successfully.'
-                  });
-                  done();
-              });
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            chai.request(app)
+                .post(addUsersUrl)
+                .set('cookie', [cookie])
+                .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataValid.xlsx')), 'addUsersDataValid.xlsx')
+                .end((err, res) => {
+                    res.body.should.be.eql({
+                        status: 'success',
+                        message: '3 new User accounts created successfully.'
+                    });
+                    done();
+                });
         })
         it('should add users successfully & return any duplicates', (done) => {
-          let cookie = mockSession('session', process.env.SECRET, userSession);
-          const agent = chai.request(app);
-          agent
-              .post(addUsersUrl)
-              .set('cookie', [cookie])
-              .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataTableDuplicates.xlsx')), 'addUsersDataTableDuplicates.xlsx')
-              .end((err, res) => {
-                  res.status.should.be.eql(201)
-                  res.body.should.be.eql({
-                  status: 'success',
-                  message: '2 new User accounts created successfully.',
-                  duplicates: { 4: 'Duplicate record found'}
-                  });
-                  done();
+            let cookie = mockSession('session', process.env.SECRET, userSession);
+            const agent = chai.request(app);
+            agent
+                .post(addUsersUrl)
+                .set('cookie', [cookie])
+                .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataTableDuplicates.xlsx')), 'addUsersDataTableDuplicates.xlsx')
+                .end((err, res) => {
+                    res.status.should.be.eql(201)
+                    res.body.should.be.eql({
+                        status: 'success',
+                        message: '2 new User accounts created successfully.',
+                        duplicates: { 4: 'Duplicate record found' }
+                    });
+                    done();
                 });
         });
 
