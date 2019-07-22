@@ -1,6 +1,7 @@
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
+
 import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Results, Users } = models;
@@ -52,15 +53,15 @@ class ResultsController {
  */
   static async getAllResults(req, res) {
     try {
-      const term = req.query.term;
-      const year = req.query.year;
-      const subject = req.query.subject;
+      const term = toLowerCase(req.query.term);
+      const year = toLowerCase(req.query.year);
+      const subject = toLowerCase(req.query.subject);
 
 
       const options = {
         attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
         where: {},
-        include: [{model: Users, 'as': 'User'}],
+        include: [{model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email']}],
         order: [['subject', 'ASC']]
       };
 
@@ -107,15 +108,14 @@ class ResultsController {
  */
   static async getUserResults(req, res) {
     try {
-      const term = req.query.term;
-      const year = req.query.year;
-      const subject = req.query.subject;
+      const term = toLowerCase(req.query.term);
+      const year = toLowerCase(req.query.year);
+      const subject = toLowerCase(req.query.subject);
 
       // specifies options in the findAll sequelize method
       const options = {
         attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
         where: {},
-        include: [{model: Users, 'as': 'User'}],
         order: [['subject', 'ASC']]
       };
 

@@ -1,4 +1,5 @@
 import models from '../models';
+import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Schools, Users } = models;
 
@@ -14,7 +15,7 @@ class SchoolsController {
  * @returns {object} - returns user
  */
   static async create(req, res) {
-    const { school_name, address_line_1, address_line_2, country, city, postal_code, email } = req.body;
+    const { school_name, address_line_1, address_line_2, country, city, postal_code, email } = toLowerCase(req.body);
     const admin_uid = req.session.user_uid;
     const { role, school_uid } = req.session;
     try {

@@ -22,7 +22,7 @@ export const checkStudentPrivilege = (req, res, next) => {
     if (!['student'].includes(req.session.role)) {
         return res.status(401).json({
             status: 'failure',
-            message: 'Sorry, you do not have the required privilege ======='
+            message: 'Sorry, you do not have the required privilege'
         })
     }
     next();

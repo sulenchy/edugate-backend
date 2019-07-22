@@ -4,6 +4,8 @@ export const toLowerCase = (obj) => {
     if (!obj) {
         return;
     }
+    if(typeof obj === 'string') return obj.toLocaleLowerCase();
+    
     if (typeof obj !== 'Object' && typeof obj !== 'object') {
         return;
     }

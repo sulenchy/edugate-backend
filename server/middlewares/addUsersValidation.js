@@ -1,6 +1,7 @@
 import ExcelValidators from '../helpers/excelValidators';
 import formatExcel from '../helpers/formatExcel';
 import sendError from '../helpers/sendError';
+import { toLowerCase } from '../helpers/convertToLowerCase';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow';
 
 const dataInputs = ['first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'];
@@ -18,6 +19,9 @@ class addUsersValidation {
       if (!ExcelValidators.checkFileType(file)) return sendError(res, 422, 'Wrong file type');
 
       let users = formatExcel(file);
+
+      // converts all data to lowercase
+      users = Object.values(toLowerCase(users));
 
       if (ExcelValidators.checkEmptySheet(users)) return sendError(res, 422, 'File does not contain users');
 
