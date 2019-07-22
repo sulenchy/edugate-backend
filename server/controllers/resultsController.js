@@ -1,8 +1,9 @@
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
+import { toLowerCase } from '../helpers/convertToLowerCase';
 
-const { Results } = models;
+const { Results, Users } = models;
 
 /**
  * @class ResultsController
@@ -56,27 +57,29 @@ class ResultsController {
       const subject = req.query.subject;
 
 
-      const clause = {
-        attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id', 'user_uid'],
-        where: {}
+      const options = {
+        attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
+        where: {},
+        include: [{model: Users, 'as': 'User'}],
+        order: [['subject', 'ASC']]
       };
 
-      clause.where.school_uid = req.session.school_uid;
+      options.where.school_uid = req.session.school_uid;
 
       if (term) {
-        clause.where.term = term;
+        options.where.term = term;
       }
 
       if (year) {
-        clause.where.year = year;
+        options.where.year = year;
       }
 
       if (subject) {
-        clause.where.subject = subject;
+        options.where.subject = subject;
       }
 
-      const results = await Results.findAll(
-        clause
+      const results = await Results.findAndCountAll(
+        options
       )
 
       return res.status(200).json({
@@ -108,31 +111,33 @@ class ResultsController {
       const year = req.query.year;
       const subject = req.query.subject;
 
-
-      const clause = {
+      // specifies options in the findAll sequelize method
+      const options = {
         attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
-        where: {}
+        where: {},
+        include: [{model: Users, 'as': 'User'}],
+        order: [['subject', 'ASC']]
       };
 
 
       const { school_uid, user_uid } = req.session;
-      clause.where.school_uid = school_uid;
-      clause.where.user_uid = user_uid;
+      options.where.school_uid = school_uid;
+      options.where.user_uid = user_uid;
 
       if (term) {
-        clause.where.term = term;
+        options.where.term = term;
       }
 
       if (year) {
-        clause.where.year = year;
+        options.where.year = year;
       }
 
       if (subject) {
-        clause.where.subject = subject;
+        options.where.subject = subject;
       }
 
       const results = await Results.findAll(
-        clause
+        options
       )
 
       return res.status(200).json({
