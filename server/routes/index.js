@@ -3,11 +3,14 @@ import UserController from '../controllers/userController';
 import UserValidator from '../middlewares/userValidation';
 import adminPrivilegeRouter from './adminPrivilege';
 import teacherPrivilegeRouter from './teacherPrivilege';
-import { checkUserIsLoggedIn,
+import userPrivilegeRouter from './userPrivilege';
+import {
+    checkUserIsLoggedIn,
     checkTeacherPrivilege,
-    checkAdminPrivilege
+    checkAdminPrivilege,
 }
     from '../middlewares/checkUser';
+
 
 
 const router = express.Router();
@@ -21,6 +24,8 @@ router.post('/api/v1/users/signup', UserValidator.validateUserSignUp, UserValida
 router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
 
 router.use(checkUserIsLoggedIn);
+
+router.use(userPrivilegeRouter);
 
 router.use(checkTeacherPrivilege);
 router.use(teacherPrivilegeRouter);

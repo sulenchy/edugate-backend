@@ -2,6 +2,7 @@ import ExcelValidators from '../helpers/excelValidators';
 import formatExcel from '../helpers/formatExcel';
 import emailToUid from '../helpers/emailToUid';
 import sendError from '../helpers/sendError';
+import { toLowerCase } from '../helpers/convertToLowerCase';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow'
 
 const dataInputs = ['email', 'year', 'term', 'subject', 'exam', 'mark', 'grade'];
@@ -19,6 +20,9 @@ class addResultsValidation {
       if (!ExcelValidators.checkFileType(file)) return sendError(res, 422, 'Wrong file type');
 
       let results = formatExcel(file);
+
+      // converts all data to lower case
+      results = Object.values(toLowerCase(results));
 
       if (ExcelValidators.checkEmptySheet(results)) return sendError(res, 422, 'File does not contain results')
 
@@ -41,7 +45,7 @@ class addResultsValidation {
       if (Object.keys(fileDuplicates).length) return sendError(res, 422, ExcelValidators.fileDuplicateMessage(fileDuplicates));
 
       res.locals.duplicates = await ExcelValidators.checkResultTableDuplicate(results);
-      res.locals.results = results;
+      res.locals.results = results
       next();
     }
     catch (err) {

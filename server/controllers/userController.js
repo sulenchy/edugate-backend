@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
+import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Users } = models;
 
@@ -17,7 +18,7 @@ class UsersController {
  * @returns {object} - returns user
  */
   static async signUp(req, res) {
-    const { email, first_name, last_name } = req.body;
+    const { email, first_name, last_name } = toLowerCase(req.body);
     let { password } = req.body;
     password = bcrypt.hashSync(password, 10);
     const role = 'admin';
@@ -60,7 +61,8 @@ class UsersController {
   * @returns {object} - returns user
   */
   static async login(req, res) {
-    const { email, password } = req.body;
+    const { email } = toLowerCase(req.body);
+    const { password } = req.body;
     try {
       const user = await Users.findOne({
         attributes: ['password', 'user_uid', 'school_uid', 'role'],
@@ -191,7 +193,7 @@ class UsersController {
       req.session = null;
       return res.status(200).json({
         status: 'success',
-        messaage: 'User logout successfully'
+        message: 'User logout successfully'
       })
     }
   }

@@ -13,4 +13,6 @@ router.get('/api/v1/users/:query', checkIfUserHasSchool, UserController.getUsers
 // adds new result to the database
 router.post('/api/v1/results/addresults', checkIfUserHasSchool, AddResultsValidation.validateAddResults, ResultsController.addResults);
 
+router.get('/api/v1/results/toplevel', checkIfUserHasSchool,ResultsController.getAllResults)
+
 export default router;

@@ -14,6 +14,4 @@ router.post('/api/v1/schools/create', SchoolValidator.validateSchoolCreate, Scho
 // adds students to the database
 router.post('/api/v1/users/addusers', checkIfUserHasSchool, AddUsersValidation.validateAddUsers, UserController.addUsers);
 
-
-
 export default router;
