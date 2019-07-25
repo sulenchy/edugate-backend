@@ -115,17 +115,10 @@ class ExcelValidators {
     return results;
   }
 
-<<<<<<< HEAD
-  static numbersToString(data) {
-    for (let record of data) {
-      for (let input of Object.keys(record)) {
-        if (typeof record[input] === "number") {
-=======
   static dataToString(data) {
     for (let record of data) {
       for (let input of Object.keys(record)) {
         if (typeof record[input] !== "string") {
->>>>>>> b22e322... Ft: updateUser validation checks
           const stringData = record[input].toString();
           record[input] = stringData;
         }
