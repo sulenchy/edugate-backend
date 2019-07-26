@@ -1,5 +1,6 @@
 import models from '../models';
 import { toLowerCase } from '../helpers/convertToLowerCase';
+import sendError from '../helpers/sendError.js';
 
 const { Schools, Users } = models;
 
@@ -9,7 +10,7 @@ const { Schools, Users } = models;
  */
 class SchoolsController {
   /**
- * @description - creates a new school for an admin 
+ * @description - creates a new school for an admin
  * @param {object} req - request object
  * @param {object} res - response object
  * @returns {object} - returns user
@@ -21,17 +22,11 @@ class SchoolsController {
     try {
       // check if the admin has a school already or not
       if(school_uid){
-        return res.status(409).json({
-          status: 'failure',
-          message: 'Sorry! An admin is not allow to manage more than a school'
-        })
+        return sendError(res, 409, 'Sorry! An admin is not allow to manage more than a school');
       }
 
       if (!['admin', 'super admin'].includes(role)) {
-        return res.status(401).json({
-          status: 'failure',
-          error: 'Sorry, you do not have privilege to add new school.Please contact the admin'
-        })
+        return sendError(res, 401, 'Sorry, you do not have privilege to add new school.Please contact the admin');
       }
       const school = await Schools
         .create({
@@ -55,12 +50,7 @@ class SchoolsController {
         });
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 }

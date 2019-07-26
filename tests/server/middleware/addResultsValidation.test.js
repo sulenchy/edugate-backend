@@ -82,7 +82,7 @@ describe('Add results validation unit tests', () => {
           res.status.should.be.eql(401);
           res.body.should.be.eql({
             status: 'failure',
-            message: 'Please, Login'
+            error: 'Please login'
           });
           done();
         })

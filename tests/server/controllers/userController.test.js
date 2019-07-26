@@ -7,7 +7,8 @@ import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
-    userDataSignupValidData
+    userDataSignupValidData,
+    privilegeUsers
 } from '../../mockData/userMockData';
 
 chai.use(chaiHttp);
@@ -21,43 +22,17 @@ const addUsersUrl = '/api/v1/users/addusers';
 const getUsersUrlStudent = '/api/v1/users/student';
 const getUsersUrlTeacher = '/api/v1/users/teacher';
 const getUsersUrlInvalid = '/api/v1/users/stu';
+const updateUserUrl = '/api/v1/users/update';
 
 let userSession = '';
-
 
 describe("User Controller", () => {
     before(async () => {
         try {
-            await Users.create({
-                user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-                first_name: 'John',
-                last_name: 'Doe',
-                dob: new Date(),
-                year_of_graduation: '2020',
-                role: 'admin',
-                password: bcrypt.hashSync('1234567', 10),
-                phone_number: '07038015455',
-                email: 'jamsgra.doey@gmail.com',
-            });
+            await Users.bulkCreate(privilegeUsers);
         } catch (err) {
             return err;
         }
-    })
-
-    before((done) => {
-        chai.request(app)
-            .post(loginUrl)
-            .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
-            .end((err, res) => {
-                userSession = res.body.userSession
-                res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
-                    userSession
-                });
-                done();
-            });
     })
 
     after(async () => {
@@ -150,7 +125,7 @@ describe("User Controller", () => {
                     res.body.should.be.eql({
                         status: 'success',
                         message: '2 new User accounts created successfully.',
-                        duplicates: { 4: 'Duplicate record found' }
+                        duplicates: { 4: 'Email already registered' }
                     });
                     done();
                 });
@@ -165,7 +140,7 @@ describe("User Controller", () => {
                 .set('cookie', [cookie])
                 .end((err, res) => {
                     res.body.status.should.be.eql('failure');
-                    res.body.message.should.be.eql('Please, Login');
+                    res.body.error.should.be.eql('Please login');
                     done();
                 })
         })
@@ -204,10 +179,374 @@ describe("User Controller", () => {
                 .set('cookie', [cookie])
                 .end((err, res) => {
                     res.body.status.should.be.eql('failure');
-                    res.body.message.should.be.eql('Sorry, invalid data supplied. Please enter valid data.');
+                    res.body.error.should.be.eql('Sorry, invalid data supplied. Please enter valid data.');
                     // res.body.userList.should.be.an('array');
                     done();
                 })
         })
     })
+
+    describe('Update Users', () => {
+      it('should not allow access if not logged on', (done) => {
+        chai.request(app)
+            .post(updateUserUrl)
+            .end((err, res) => {
+              res.status.should.be.eql(401);
+              res.body.error.should.be.eql('Please login');
+              done();
+            })
+      })
+      it('should not allow students to update users', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'student@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow teacher to update other teacher', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f611', email: 'teacher2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+              // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege to update teacher');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should allow teacher to update student', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'student' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(200);
+                              res.body.message.should.be.eql('User successfully updated');
+                              res.body.updatedUser.should.be.eql('student@gmail.com')
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow teacher to update student role to teacher', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege to update role');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow teacher to update student role to admin', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege to update admin or super admin');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+
+      it('should not allow teacher to update admin', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608', email: 'jamsgra.doey@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege to update admin or super admin');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should allow admin to update teacher', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'admin@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(200);
+                              res.body.message.should.be.eql('User successfully updated');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should allow admin to update user email with one that is already registered', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'admin@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(422);
+                              res.body.error.should.be.eql('Email already registered');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow admin to update teacher role to admin', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'admin@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege to update admin or super admin');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should allow admin to update student', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'admin@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(200);
+                              res.body.message.should.be.eql('User successfully updated');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow admin to update student role to admin', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'admin@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege to update admin or super admin');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+    })
+    it('should not allow admin to update student from different school', (done) => {
+      let cookie;
+      const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f613', email: 'diffschoolstudent@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'student' }
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'admin@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .post(updateUserUrl)
+                          .set('cookie', [cookie])
+                          .send(updateData)
+                          .then((res) => {
+                            res.status.should.be.eql(401);
+                            res.body.error.should.be.eql('Sorry, you do not have the required privilege to update user from different school');
+                            done();
+              })
+          })
+          .catch(done)
+    })
+    it('should allow super admin to update super admin', (done) => {
+      let cookie;
+      const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f614', email: 'superadmin2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'superadmin@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .post(updateUserUrl)
+                          .set('cookie', [cookie])
+                          .send(updateData)
+                          .then((res) => {
+                            res.body.message.should.be.eql('User successfully updated');
+                            res.status.should.be.eql(200);
+                            done();
+              })
+          })
+          .catch(done)
+    })
+
 })

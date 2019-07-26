@@ -58,20 +58,26 @@ class addResultsValidation {
     for (let i = 0; i < results.length; i++) {
       let resultErrors = {};
       const resultRow = i;
-      for (let input of dataInputs) {
+      for (let input of Object.keys(results[i])) {
         const value = results[i][input];
-        let inputError = ExcelValidators.checkEmptyInput(value);
-        const validatorKey = {
-          email: ExcelValidators.validateEmail(value),
-          year: ExcelValidators.validateYear(value),
-          term: ExcelValidators.validateTerm(value),
-          subject: ExcelValidators.isAlphanumeric(value),
-          exam: ExcelValidators.isAlphanumeric(value),
-          mark: ExcelValidators.validateMark(value),
-          grade: ''
-        };
-        inputError = inputError || validatorKey[input];
-        if (inputError) resultErrors[input] = inputError;
+        // Validator only accepts strings
+        let stringError = ExcelValidators.checkString(value);
+        if (stringError) {
+          resultErrors[input] = stringError
+        } else {
+          let inputError = ExcelValidators.checkEmptyInput(value);
+          const validatorKey = {
+            email: ExcelValidators.validateEmail(value),
+            year: ExcelValidators.validateYear(value),
+            term: ExcelValidators.validateTerm(value),
+            subject: ExcelValidators.isAlphanumeric(value),
+            exam: ExcelValidators.isAlphanumeric(value),
+            mark: ExcelValidators.validateMark(value),
+            grade: ''
+          };
+          inputError = inputError || validatorKey[input];
+          if (inputError) resultErrors[input] = inputError;
+        }
       }
     if (Object.keys(resultErrors).length) errors[resultRow] = resultErrors;
     }

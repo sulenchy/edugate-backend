@@ -3,6 +3,7 @@ import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import { toLowerCase } from '../helpers/convertToLowerCase';
+import sendError from '../helpers/sendError.js';
 
 const { Users } = models;
 
@@ -45,12 +46,7 @@ class UsersController {
         });
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 
@@ -70,11 +66,11 @@ class UsersController {
           email
         }
       });
-      if (!user) return res.status(404).json({ status: 'failure', error: "No User Found" });
+      if (!user) return sendError(res, 404, "No User Found");
       const match = await bcrypt.compare(password, user.password);
       if (match) {
 
-        
+
         const userSession = {
           user_uid: user.user_uid,
           role: user.role,
@@ -88,13 +84,10 @@ class UsersController {
           userSession
         });
       }
-      return res.status(401).json({
-        status: 'failure',
-        error: "Password is incorrect"
-      })
+      return sendError(res, 401, "Password is incorrect")
     }
     catch (err) {
-      res.status(500).json({ err });
+      return sendError(res, 500, err);
     }
   }
 
@@ -134,12 +127,7 @@ class UsersController {
         return res.status(201).json(resObj);
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 
@@ -157,10 +145,7 @@ class UsersController {
       const { school_uid, role } = req.session;
 
       if (!['student', 'teacher'].includes(query)) {
-        return res.status(422).json({
-          status: 'failure',
-          message: 'Sorry, invalid data supplied. Please enter valid data.'
-        })
+        return sendError(res, 422, 'Sorry, invalid data supplied. Please enter valid data.')
       }
       if (role) {
         userList = await Users.findAll({
@@ -178,13 +163,36 @@ class UsersController {
         userList
       })
     }
-    catch (error) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [error.message]
-          },
+    catch (err) {
+      return sendError(res, 500, err)
+    }
+  }
+
+  static async updateUser(req, res) {
+    try {
+      const { email, first_name, last_name, dob, year_of_graduation, phone_number, role } = res.locals.user;
+      const loggedInUserRole = req.session.role;
+      const updateData = { first_name, last_name, dob, year_of_graduation, phone_number };
+      // only admin & super admin can change a user's role
+      if (['admin', 'super admin'].includes(loggedInUserRole)) {
+        updateData.role = role;
+      }
+      const updatedUser = await Users.update(updateData, {
+        where: {
+          email
+        },
+        returning: true
+      })
+      if (updatedUser) {
+        let updatedInfo = updatedUser[1][0];
+        return res.status(200).json({
+          status: 'success',
+          message: 'User successfully updated',
+          updatedUser: updatedInfo.email
         })
+      }
+    } catch(err) {
+        sendError(res, 500, err)
     }
   }
 

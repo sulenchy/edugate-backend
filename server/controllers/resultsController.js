@@ -1,6 +1,7 @@
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
+import sendError from '../helpers/sendError.js';
 
 import { toLowerCase } from '../helpers/convertToLowerCase';
 
@@ -12,7 +13,7 @@ const { Results, Users } = models;
  */
 class ResultsController {
   /**
- * @description - 
+ * @description -
  * @param {object} req - request object
  * @param {object} res - response object
  * @returns {object} - returns results
@@ -36,12 +37,7 @@ class ResultsController {
         return res.status(201).json(resObj);
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err);
     }
   }
 
@@ -90,13 +86,7 @@ class ResultsController {
       })
     }
     catch (err) {
-      return res.status(500)
-        .json({
-          status: 'failure',
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err);
     }
   }
 
@@ -147,13 +137,7 @@ class ResultsController {
       })
     }
     catch (err) {
-      return res.status(500)
-        .json({
-          status: 'failure',
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err);
     }
   }
 }
