@@ -50,11 +50,11 @@ export const checkIfUserHasSchool = (req, res, next) => {
 export const checkUserUpdatePrivilege = async (req, res, next) => {
   try {
     const { role, school_uid } = req.session;
-    const { email } = req.body;
+    const { user_uid } = req.body;
     const updateRole = req.body.role;
     let foundUser = await Users.findOne({
       where: {
-        email
+        user_uid
       }
     })
     if (!foundUser) {
@@ -76,6 +76,8 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
     if (foundUser.role === 'student' && updateRole !== 'student' && !['admin', 'super admin'].includes(role)) {
       return sendError(res, 401, 'Sorry, you do not have the required privilege to update role')
     }
+    // store current email of user to be updated
+    res.locals.foundUserEmail = foundUser.email;
     next();
   } catch (err) {
     sendError(res, 500, err)

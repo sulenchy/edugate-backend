@@ -125,7 +125,7 @@ describe("User Controller", () => {
                     res.body.should.be.eql({
                         status: 'success',
                         message: '2 new User accounts created successfully.',
-                        duplicates: { 4: 'Duplicate record found' }
+                        duplicates: { 4: 'Email already registered' }
                     });
                     done();
                 });
@@ -223,7 +223,7 @@ describe("User Controller", () => {
       })
       it('should not allow teacher to update other teacher', (done) => {
         let cookie;
-        const updateData = { email: 'teacher2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f611', email: 'teacher2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'teacher@gmail.com', password: '1234567' })
@@ -250,7 +250,7 @@ describe("User Controller", () => {
       })
       it('should allow teacher to update student', (done) => {
         let cookie;
-        const updateData = { email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'student' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'student' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'teacher@gmail.com', password: '1234567' })
@@ -278,7 +278,7 @@ describe("User Controller", () => {
       })
       it('should not allow teacher to update student role to teacher', (done) => {
         let cookie;
-        const updateData = { email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'teacher@gmail.com', password: '1234567' })
@@ -305,7 +305,7 @@ describe("User Controller", () => {
       })
       it('should not allow teacher to update student role to admin', (done) => {
         let cookie;
-        const updateData = { email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'teacher@gmail.com', password: '1234567' })
@@ -333,7 +333,7 @@ describe("User Controller", () => {
 
       it('should not allow teacher to update admin', (done) => {
         let cookie;
-        const updateData = { email: 'jamsgra.doey@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608', email: 'jamsgra.doey@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'teacher@gmail.com', password: '1234567' })
@@ -360,7 +360,7 @@ describe("User Controller", () => {
       })
       it('should allow admin to update teacher', (done) => {
         let cookie;
-        const updateData = { email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'admin@gmail.com', password: '1234567' })
@@ -385,9 +385,36 @@ describe("User Controller", () => {
             })
             .catch(done)
       })
+      it('should allow admin to update user email with one that is already registered', (done) => {
+        let cookie;
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'admin@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .post(updateUserUrl)
+                            .set('cookie', [cookie])
+                            .send(updateData)
+                            .then((res) => {
+                              res.status.should.be.eql(422);
+                              res.body.error.should.be.eql('Email already registered');
+                              done();
+                })
+            })
+            .catch(done)
+      })
       it('should not allow admin to update teacher role to admin', (done) => {
         let cookie;
-        const updateData = { email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'admin@gmail.com', password: '1234567' })
@@ -414,7 +441,7 @@ describe("User Controller", () => {
       })
       it('should allow admin to update student', (done) => {
         let cookie;
-        const updateData = { email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'teacher' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'admin@gmail.com', password: '1234567' })
@@ -441,7 +468,7 @@ describe("User Controller", () => {
       })
       it('should not allow admin to update student role to admin', (done) => {
         let cookie;
-        const updateData = { email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+        const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609', email: 'teacher@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
         chai.request(app)
             .post(loginUrl)
             .send({ email: 'admin@gmail.com', password: '1234567' })
@@ -469,7 +496,7 @@ describe("User Controller", () => {
     })
     it('should not allow admin to update student from different school', (done) => {
       let cookie;
-      const updateData = { email: 'diffschoolstudent@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'student' }
+      const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f613', email: 'diffschoolstudent@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'student' }
       chai.request(app)
           .post(loginUrl)
           .send({ email: 'admin@gmail.com', password: '1234567' })
@@ -496,7 +523,7 @@ describe("User Controller", () => {
     })
     it('should allow super admin to update super admin', (done) => {
       let cookie;
-      const updateData = { email: 'superadmin2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+      const updateData = { user_uid: '40e6215d-b5c6-4896-987c-f30f3678f614', email: 'superadmin2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
       chai.request(app)
           .post(loginUrl)
           .send({ email: 'superadmin@gmail.com', password: '1234567' })

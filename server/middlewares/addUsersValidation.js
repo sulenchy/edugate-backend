@@ -51,15 +51,24 @@ class addUsersValidation {
     }
   }
 
-  static validateUpdateUsers(req, res, next) {
-    const { email, first_name, last_name, dob, year_of_graduation, phone_number, role } = req.body;
-    let user = { email, first_name, last_name, dob, year_of_graduation, phone_number, role };
-    user = toLowerCase(user);
-    const userUpdatedInputs = removeUndefinedInputs([user]);
-    const inputErrs = addUsersValidation.checkInputs(userUpdatedInputs);
-    if (Object.keys(inputErrs).length) return sendError(res, 422, inputErrs);
-    res.locals.user = userUpdatedInputs[0];
-    next();
+  static async validateUpdateUsers(req, res, next) {
+    try {
+      const { email, first_name, last_name, dob, year_of_graduation, phone_number, role } = req.body;
+      let user = { email, first_name, last_name, dob, year_of_graduation, phone_number, role };
+      user = toLowerCase(user);
+      const userUpdatedInputs = removeUndefinedInputs([user]);
+      const inputErrs = addUsersValidation.checkInputs(userUpdatedInputs);
+      if (Object.keys(inputErrs).length) return sendError(res, 422, inputErrs);
+      // if changing a user's email, check whether new email is already registered
+      if (res.locals.foundUserEmail !== email) {
+        const emailAlreadyInUse = await ExcelValidators.checkUserTableEmail(email)
+        if (emailAlreadyInUse) return sendError(res, 422, emailAlreadyInUse)
+      }
+      res.locals.user = userUpdatedInputs[0];
+      next();
+    } catch(err) {
+      return err
+    }
   }
 
   static checkInputs(users) {

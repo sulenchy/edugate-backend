@@ -6,6 +6,9 @@ import path from 'path';
 import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index';
+import {
+    privilegeUsers
+} from '../../mockData/userMockData';
 
 
 chai.use(chaiHttp);
@@ -23,31 +26,7 @@ describe('Add users validation unit tests', () => {
 
   before(async() => {
     try{
-      await Users.bulkCreate([{
-        user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-        school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-        first_name: 'John',
-        last_name: 'Doe',
-        dob: new Date(),
-        year_of_graduation: '2020',
-        role: 'admin',
-        password: bcrypt.hashSync('1234567', 10),
-        phone_number: '07038015455',
-        email: 'jamsgra.doey@gmail.com',
-      },
-      {
-        user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
-        school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-        first_name: 'John',
-        last_name: 'Doe',
-        dob: new Date(),
-        year_of_graduation: '2020',
-        role: 'student',
-        password: bcrypt.hashSync('1234567', 10),
-        phone_number: '07038015455',
-        email: 'student@gmail.com',
-      }
-    ]);
+      await Users.bulkCreate(privilegeUsers);
     } catch (err) {
       return err;
     }
@@ -238,7 +217,7 @@ describe('Add users validation unit tests', () => {
     chai.request(app)
         .post(updateUserUrl)
         .set('cookie', [cookie])
-        .send({ email: 'student@gmail.com', first_name: '123124', last_name: '', dob: 1234, year_of_graduation: '', role: 'pizza' })
+        .send({ user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: '123124', last_name: '', dob: 1234, year_of_graduation: '', role: 'pizza' })
         .then((res) => {
           res.status.should.be.eql(422);
           res.body.should.be.eql({

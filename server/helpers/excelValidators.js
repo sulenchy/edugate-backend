@@ -169,6 +169,21 @@ class ExcelValidators {
     }
   }
 
+  static async checkUserTableEmail(email) {
+    try {
+      const found = await Users.findOne({
+        where: {
+          email: email,
+        }
+      })
+      if (found) {
+        return 'Email already registered'
+      }
+    } catch (err) {
+      return err
+    }
+  }
+
   static async checkUserTableDuplicate(users) {
     try {
       let errs = {};
@@ -180,7 +195,7 @@ class ExcelValidators {
           }
         })
         if (found) {
-          errs[i] = 'Duplicate record found'
+          errs[i] = 'Email already registered'
         }
       }
       return errs;
