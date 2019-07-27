@@ -23,7 +23,7 @@ class ExcelValidators {
   }
 
   static checkEmptyInput(input) {
-    if (input === 'empty') {
+    if (input === 'empty' || input === '') {
       return 'Cannot be empty'
     }
   }
@@ -80,6 +80,12 @@ class ExcelValidators {
     }
   }
 
+  static isAlpha(value) {
+    if (!Validator.isAlpha(value)) {
+      return 'Should only contain letters'
+    }
+  }
+
   static checkUid(results) {
     let errs = {};
     for (let i = 0; i < results.length; i++) {
@@ -113,6 +119,17 @@ class ExcelValidators {
       result.student_result_id = `${result.user_uid}.${result.year}.${result.term}.${result.exam}`
     }
     return results;
+  }
+
+  static updateStudentResultId(student_result_id, updatedData) {
+    const oldData = student_result_id.split('.');
+    const result = {
+      user_uid: oldData[0],
+      year: updatedData.year || oldData[1],
+      term: updatedData.term || oldData[2],
+      exam: updatedData.exam || oldData[3]
+    }
+    return ExcelValidators.addStudentResultId([result]);
   }
 
   static dataToString(data) {

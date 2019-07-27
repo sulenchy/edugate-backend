@@ -3,7 +3,7 @@ import UserController from '../controllers/userController';
 import ResultsController from '../controllers/resultsController';
 import AddResultsValidation from '../middlewares/addResultsValidation';
 import AddUsersValidation from '../middlewares/addUsersValidation';
-import { checkIfUserHasSchool, checkUserUpdatePrivilege }
+import { checkIfUserHasSchool, checkUserUpdatePrivilege, checkResultUpdatePrivilege }
     from '../middlewares/checkUser';
 
 const router = express.Router();
@@ -16,6 +16,9 @@ router.post('/api/v1/users/update', checkIfUserHasSchool, checkUserUpdatePrivile
 
 // adds new result to the database
 router.post('/api/v1/results/addresults', checkIfUserHasSchool, AddResultsValidation.validateAddResults, ResultsController.addResults);
+
+// update result in the database
+router.post('/api/v1/results/update', checkIfUserHasSchool, checkResultUpdatePrivilege, AddResultsValidation.validateUpdateResults, ResultsController.updateResult);
 
 router.get('/api/v1/results/toplevel', checkIfUserHasSchool,ResultsController.getAllResults)
 

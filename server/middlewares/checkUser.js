@@ -1,7 +1,7 @@
 import sendError from '../helpers/sendError.js';
 import models from '../models';
 
-const { Users } = models;
+const { Users, Results } = models;
 
 export const checkUserIsLoggedIn = (req, res, next) => {
     if (!req.session.user_uid) {
@@ -51,6 +51,9 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
   try {
     const { role, school_uid } = req.session;
     const { user_uid } = req.body;
+    if (!user_uid) {
+      return sendError(res, 400, 'No user_uid sent')
+    }
     const updateRole = req.body.role;
     let foundUser = await Users.findOne({
       where: {
@@ -78,6 +81,30 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
     }
     // store current email of user to be updated
     res.locals.foundUserEmail = foundUser.email;
+    next();
+  } catch (err) {
+    sendError(res, 500, err)
+  }
+}
+
+export const checkResultUpdatePrivilege = async (req, res, next) => {
+  try {
+    const { role, school_uid } = req.session;
+    const { result_uid } = req.body;
+    if (!result_uid) {
+      return sendError(res, 400, 'No result id sent')
+    }
+    let foundResult = await Results.findOne({
+      where: {
+        result_uid
+      }
+    })
+    if (!foundResult) return sendError(res, 404, 'Result not found')
+    // Only super admin can update results from different schools
+    if (foundResult.school_uid !== school_uid && role !== 'super admin') {
+      return sendError(res, 401, 'Sorry, you do not have the required privilege to update result from different school')
+    }
+    res.locals.student_result_id = foundResult.student_result_id;
     next();
   } catch (err) {
     sendError(res, 500, err)
