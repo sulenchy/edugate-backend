@@ -548,5 +548,32 @@ describe("User Controller", () => {
           })
           .catch(done)
     })
+    it('should not allow if no user_uid sent', (done) => {
+      let cookie;
+      const updateData = { email: 'superadmin2@gmail.com', first_name: 'joe', last_name: 'bloggs', dob: '1990-01-01', year_of_graduation: '2020', role: 'admin' }
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'superadmin@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .post(updateUserUrl)
+                          .set('cookie', [cookie])
+                          .send(updateData)
+                          .then((res) => {
+                            res.body.error.should.be.eql('No user_uid sent');
+                            res.status.should.be.eql(400);
+                            done();
+              })
+          })
+          .catch(done)
+    })
 
 })

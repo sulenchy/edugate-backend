@@ -6,10 +6,13 @@ import mockSession from 'mock-session'
 import path from 'path';
 import app from '../../../server/app';
 import db from '../../../server/models/index';
-
+import {
+    resultValidData
+} from '../../mockData/userMockData';
 
 const loginUrl = '/api/v1/users/login';
 const addResultsUrl = '/api/v1/results/addresults';
+const updateResultUrl = '/api/v1/results/update';
 
 const { Users, Results, Schools } = db;
 
@@ -23,7 +26,7 @@ describe('Add results validation unit tests', () => {
     try{
       await Users.create({
         user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-        school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
+        school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
         first_name: 'John',
         last_name: 'Doe',
         dob: new Date(),
@@ -33,6 +36,7 @@ describe('Add results validation unit tests', () => {
         phone_number: '07038015455',
         email: 'john.doe@gmail.com',
       });
+      await Results.bulkCreate(resultValidData);
     } catch(err) {
       return err
     }
@@ -213,4 +217,25 @@ describe('Add results validation unit tests', () => {
         })
   });
 
+  it('should give errors when updating result with invalid inputs', (done) => {
+    let cookie = mockSession('session', process.env.SECRET, userSession);
+    chai.request(app)
+        .post(updateResultUrl)
+        .set('cookie', [cookie])
+        .send({ result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa04', year: '201123', subject: '12312312', exam: 'GR2423', mark: '123/150', term: 'A' })
+        .end((err, res) => {
+          res.status.should.be.eql(422);
+          res.body.should.be.eql({
+            status: 'failure',
+            error: {
+              0: {
+                subject: "Should only contain letters",
+                term: "Invalid term number",
+                year: "Invalid year",
+              }
+            }
+          })
+          done();
+        })
+    })
 });
