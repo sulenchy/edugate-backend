@@ -3,6 +3,8 @@ import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import { toLowerCase } from '../helpers/convertToLowerCase';
+import setUserResultToDelete from '../helpers/setUserResultToDelete';
+import compareSchoolUid  from '../helpers/getUserSchoolUid';
 
 const { Users } = models;
 
@@ -74,7 +76,7 @@ class UsersController {
       const match = await bcrypt.compare(password, user.password);
       if (match) {
 
-        
+
         const userSession = {
           user_uid: user.user_uid,
           role: user.role,
@@ -164,7 +166,7 @@ class UsersController {
       }
       if (role) {
         userList = await Users.findAll({
-          attributes: ['user_uid', 'first_name','last_name','dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
+          attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
           where: {
             role: query,
             school_uid
@@ -188,6 +190,64 @@ class UsersController {
     }
   }
 
+  /**
+  * @description - delete user
+  * @param {object} req - request object
+  * @param {object} res - response object
+  */
+  static async delete(req, res) {
+    /**
+     * ------TODO------
+     * Get the user_uid
+     * Check if the user and the admin has samme school_uid
+     * Delete the user
+     */
+
+
+    const { user } = req.params;
+    const { school_uid } = req.session;
+
+    try {
+      const deletePrivilege = compareSchoolUid(user, school_uid);
+      if (!deletePrivilege) {
+        return res.status(400).json({
+          status: 'failure',
+          message: 'Sorry, you do not have the required privilege'
+        })
+      }
+      const updatedUser = await Users.update(
+        { status: 'deleted' },
+        {
+          where: {
+            user_uid: user
+          }
+        })
+
+      const updatedResults = setUserResultToDelete(user);
+
+      if (updatedUser && updatedResults) {
+        res.status(200).json({
+          status: 'success',
+          updatedUser
+        })
+      }
+    }
+    catch (err) {
+      return res.status(500)
+        .json({
+          errors: {
+            message: [err.message]
+          },
+        })
+    }
+
+  }
+
+  /**
+  * @description - logout user
+  * @param {object} req - request object
+  * @param {object} res - response object
+  */
   static async logout(req, res) {
     if (req.session) {
       req.session = null;

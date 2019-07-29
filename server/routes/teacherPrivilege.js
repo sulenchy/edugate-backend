@@ -7,7 +7,7 @@ import { checkIfUserHasSchool }
 
 const router = express.Router();
 
-// get students from the database
+// get users from the database
 router.get('/api/v1/users/:query', checkIfUserHasSchool, UserController.getUsers);
 
 // adds new result to the database

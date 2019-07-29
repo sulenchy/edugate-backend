@@ -28,6 +28,11 @@ export default (sequelize, DataTypes) => {
     student_result_id: {
       allowNull: false,
       type: DataTypes.STRING,
+    },
+    status: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      defaultValue: 'active'
     }
   }, {});
   Results.associate = function(models) {

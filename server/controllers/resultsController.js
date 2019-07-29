@@ -61,7 +61,7 @@ class ResultsController {
       const options = {
         attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
         where: {},
-        include: [{model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email']}],
+        include: [{ model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'] }],
         order: [['subject', 'ASC']]
       };
 
@@ -150,6 +150,48 @@ class ResultsController {
       return res.status(500)
         .json({
           status: 'failure',
+          errors: {
+            message: [err.message]
+          },
+        })
+    }
+  }
+
+  /**
+  * @description - delete user
+  * @param {object} req - request object
+  * @param {object} res - response object
+  */
+  static async delete(req, res) {
+
+    const { user_uid } = req.params;
+    // const { school_uid } = req.session;
+
+    try {
+      // const deletePrivilege = compareSchoolUid(user_uid, school_uid);
+      // if (!deletePrivilege) {
+      //   return res.status(400).json({
+      //     status: 'failure',
+      //     message: 'Sorry, user does not have a school'
+      //   })
+      // }
+      const updateUser = await Users.update(
+        { status: 'deleted' },
+        {
+          where: {
+            user_uid
+          }
+        })
+      if (updateUser) {
+        res.status(200).json({
+          status: 'success',
+          updateUser
+        })
+      }
+    }
+    catch (err) {
+      return res.status(500)
+        .json({
           errors: {
             message: [err.message]
           },
