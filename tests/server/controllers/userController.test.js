@@ -189,7 +189,7 @@ describe("User Controller", () => {
     describe('Update Users', () => {
       it('should not allow access if not logged on', (done) => {
         chai.request(app)
-            .post(updateUserUrl)
+            .patch(updateUserUrl)
             .end((err, res) => {
               res.status.should.be.eql(401);
               res.body.error.should.be.eql('Please login');
@@ -211,7 +211,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .then((res) => {
                               res.status.should.be.eql(401);
@@ -237,7 +237,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -264,7 +264,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -292,7 +292,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -319,7 +319,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -347,7 +347,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -374,7 +374,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -401,7 +401,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -428,7 +428,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -455,7 +455,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -482,7 +482,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateUserUrl)
+                            .patch(updateUserUrl)
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -510,7 +510,7 @@ describe("User Controller", () => {
                   userSession
               });
               return chai.request(app)
-                          .post(updateUserUrl)
+                          .patch(updateUserUrl)
                           .set('cookie', [cookie])
                           .send(updateData)
                           .then((res) => {
@@ -537,7 +537,7 @@ describe("User Controller", () => {
                   userSession
               });
               return chai.request(app)
-                          .post(updateUserUrl)
+                          .patch(updateUserUrl)
                           .set('cookie', [cookie])
                           .send(updateData)
                           .then((res) => {
@@ -564,7 +564,7 @@ describe("User Controller", () => {
                   userSession
               });
               return chai.request(app)
-                          .post(updateUserUrl)
+                          .patch(updateUserUrl)
                           .set('cookie', [cookie])
                           .send(updateData)
                           .then((res) => {

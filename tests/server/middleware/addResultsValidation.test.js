@@ -220,7 +220,7 @@ describe('Add results validation unit tests', () => {
   it('should give errors when updating result with invalid inputs', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
-        .post(updateResultUrl)
+        .patch(updateResultUrl)
         .set('cookie', [cookie])
         .send({ result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa04', year: '201123', subject: '12312312', exam: 'GR2423', mark: '123/150', term: 'A' })
         .end((err, res) => {

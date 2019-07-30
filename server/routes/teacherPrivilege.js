@@ -12,13 +12,13 @@ const router = express.Router();
 router.get('/api/v1/users/:query', checkIfUserHasSchool, UserController.getUsers);
 
 // update user in the database
-router.post('/api/v1/users/update', checkIfUserHasSchool, checkUserUpdatePrivilege, AddUsersValidation.validateUpdateUsers, UserController.updateUser);
+router.patch('/api/v1/users/update', checkIfUserHasSchool, checkUserUpdatePrivilege, AddUsersValidation.validateUpdateUsers, UserController.updateUser);
 
 // adds new result to the database
 router.post('/api/v1/results/addresults', checkIfUserHasSchool, AddResultsValidation.validateAddResults, ResultsController.addResults);
 
 // update result in the database
-router.post('/api/v1/results/update', checkIfUserHasSchool, checkResultUpdatePrivilege, AddResultsValidation.validateUpdateResults, ResultsController.updateResult);
+router.patch('/api/v1/results/update', checkIfUserHasSchool, checkResultUpdatePrivilege, AddResultsValidation.validateUpdateResults, ResultsController.updateResult);
 
 router.get('/api/v1/results/toplevel', checkIfUserHasSchool,ResultsController.getAllResults)
 

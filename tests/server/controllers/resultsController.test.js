@@ -370,7 +370,7 @@ describe("Results Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateResultUrl)
+                            .patch(updateResultUrl)
                             .set('cookie', [cookie])
                             .then((res) => {
                               res.status.should.be.eql(401);
@@ -395,7 +395,7 @@ describe("Results Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateResultUrl)
+                            .patch(updateResultUrl)
                             .set('cookie', [cookie])
                             .send({ year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
                             .then((res) => {
@@ -421,7 +421,7 @@ describe("Results Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateResultUrl)
+                            .patch(updateResultUrl)
                             .set('cookie', [cookie])
                             .send({ result_uid: '85811cc6-5001-435e-bd58-b69d902b1c8e', year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
                             .then((res) => {
@@ -447,7 +447,7 @@ describe("Results Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateResultUrl)
+                            .patch(updateResultUrl)
                             .set('cookie', [cookie])
                             .send({ result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa05', year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
                             .then((res) => {
@@ -473,7 +473,7 @@ describe("Results Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .post(updateResultUrl)
+                            .patch(updateResultUrl)
                             .set('cookie', [cookie])
                             .send({ result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa04', year: '2009', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '1' })
                             .then((res) => {

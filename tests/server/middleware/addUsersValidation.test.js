@@ -215,7 +215,7 @@ describe('Add users validation unit tests', () => {
   it('should give error if invalid data to update user', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
-        .post(updateUserUrl)
+        .patch(updateUserUrl)
         .set('cookie', [cookie])
         .send({ user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: '123124', dob: 1234, year_of_graduation: '', role: 'pizza' })
         .then((res) => {
