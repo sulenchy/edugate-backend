@@ -173,7 +173,7 @@ class UsersController {
       let updateData = res.locals.user;
       const updatedUser = await Users.update(updateData, {
         where: {
-          user_uid: req.body.user_uid
+          user_uid: req.query.user_uid
         },
         returning: true
       })

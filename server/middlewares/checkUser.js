@@ -50,7 +50,7 @@ export const checkIfUserHasSchool = (req, res, next) => {
 export const checkUserUpdatePrivilege = async (req, res, next) => {
   try {
     const { role, school_uid } = req.session;
-    const { user_uid } = req.body;
+    const { user_uid } = req.query;
     if (!user_uid) {
       return sendError(res, 400, 'No user_uid sent')
     }
@@ -90,7 +90,7 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
 export const checkResultUpdatePrivilege = async (req, res, next) => {
   try {
     const { role, school_uid } = req.session;
-    const { result_uid } = req.body;
+    const { result_uid } = req.query;
     if (!result_uid) {
       return sendError(res, 400, 'No result id sent')
     }

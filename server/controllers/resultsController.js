@@ -146,7 +146,7 @@ class ResultsController {
       const updateData = res.locals.result;
       const updatedResult = await Results.update(updateData, {
         where: {
-          result_uid: req.body.result_uid
+          result_uid: req.query.result_uid
         },
         returning: true
       })
