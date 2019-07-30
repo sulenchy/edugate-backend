@@ -199,7 +199,7 @@ class UsersController {
 
   static async changePassword(req, res) {
     try {
-      const { password } = req.body;
+      const { newPassword } = req.body;
       const { user_uid } = req.session;
 
       const errors = validationResult(req);
@@ -207,9 +207,9 @@ class UsersController {
         const errorsMsg = errors.array().map(x => x.msg)
         return sendError(res, 422, errorsMsg)
       }
-      
-      const newPassword = bcrypt.hashSync(password, 10);
-      const updatedUser = await Users.update({ password: newPassword }, {
+
+      const hashNewPassword = bcrypt.hashSync(newPassword, 10);
+      const updatedUser = await Users.update({ password: hashNewPassword }, {
         where: {
           user_uid
         },

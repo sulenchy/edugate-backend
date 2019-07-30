@@ -551,6 +551,32 @@ describe("User Controller", () => {
     })
 
   describe('changePassword', () => {
+    it('should not allow user to change password if they type in incorrect current password', (done) => {
+      let cookie;
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'student@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .patch(changePassword)
+                          .set('cookie', [cookie])
+                          .send({ password: '123ABC', newPassword: 'pizza123' })
+                          .then((res) => {
+                            res.body.error.should.be.eql('Current password entered incorrectly');
+                            res.status.should.be.eql(401);
+                            done();
+              })
+          })
+          .catch(done)
+    })
     it('should not allow user to change password if confirmPassword not sent', (done) => {
       let cookie;
       chai.request(app)
@@ -568,7 +594,7 @@ describe("User Controller", () => {
               return chai.request(app)
                           .patch(changePassword)
                           .set('cookie', [cookie])
-                          .send({ password: 'pizza123' })
+                          .send({ password: '1234567', newPassword: 'pizza123' })
                           .then((res) => {
                             res.body.error.should.be.eql(['Confirm Password not sent', 'Passwords do not match']);
                             res.status.should.be.eql(422);
@@ -594,7 +620,7 @@ describe("User Controller", () => {
               return chai.request(app)
                           .patch(changePassword)
                           .set('cookie', [cookie])
-                          .send({ password: 'pizz', confirmPassword: 'pizh'})
+                          .send({ password: '1234567', newPassword: 'pizz', confirmPassword: 'pizh'})
                           .then((res) => {
                             res.body.error.should.be.eql(['Password must be at least 5 chars long', 'Password must contain a number', 'Passwords do not match']);
                             res.status.should.be.eql(422);
@@ -620,7 +646,7 @@ describe("User Controller", () => {
               return chai.request(app)
                           .patch(changePassword)
                           .set('cookie', [cookie])
-                          .send({ password: 'pizza123', confirmPassword: 'pizza1234'})
+                          .send({ password: '1234567', newPassword: 'pizza123', confirmPassword: 'pizza1234'})
                           .then((res) => {
                             res.body.error.should.be.eql([ 'Passwords do not match' ]);
                             res.status.should.be.eql(422);
@@ -646,7 +672,7 @@ describe("User Controller", () => {
               return chai.request(app)
                           .patch(changePassword)
                           .set('cookie', [cookie])
-                          .send({ password: 'pizza123', confirmPassword: 'pizza123'})
+                          .send({ password: '1234567', newPassword: 'pizza123', confirmPassword: 'pizza123'})
                           .then((res) => {
                             res.body.message.should.be.eql('User successfully updated');
                             res.status.should.be.eql(200);
