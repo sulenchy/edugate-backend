@@ -23,6 +23,7 @@ const getUsersUrlStudent = '/api/v1/users/student';
 const getUsersUrlTeacher = '/api/v1/users/teacher';
 const getUsersUrlInvalid = '/api/v1/users/stu';
 const updateUserUrl = '/api/v1/users/update';
+const changePassword = '/api/v1/users/changePassword';
 
 let userSession = '';
 
@@ -548,5 +549,119 @@ describe("User Controller", () => {
           })
           .catch(done)
     })
+
+  describe('changePassword', () => {
+    it('should not allow user to change password if confirmPassword not sent', (done) => {
+      let cookie;
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'student@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .patch(changePassword)
+                          .set('cookie', [cookie])
+                          .send({ password: 'pizza123' })
+                          .then((res) => {
+                            res.body.error.should.be.eql(['Confirm Password not sent', 'Passwords do not match']);
+                            res.status.should.be.eql(422);
+                            done();
+              })
+          })
+          .catch(done)
+    })
+    it('should not allow user to change password if less than 5 chars, does not contain numbers, & do not match', (done) => {
+      let cookie;
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'student@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .patch(changePassword)
+                          .set('cookie', [cookie])
+                          .send({ password: 'pizz', confirmPassword: 'pizh'})
+                          .then((res) => {
+                            res.body.error.should.be.eql(['Password must be at least 5 chars long', 'Password must contain a number', 'Passwords do not match']);
+                            res.status.should.be.eql(422);
+                            done();
+              })
+          })
+          .catch(done)
+    })
+    it('should not allow user to change password if not matching', (done) => {
+      let cookie;
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'student@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .patch(changePassword)
+                          .set('cookie', [cookie])
+                          .send({ password: 'pizza123', confirmPassword: 'pizza1234'})
+                          .then((res) => {
+                            res.body.error.should.be.eql([ 'Passwords do not match' ]);
+                            res.status.should.be.eql(422);
+                            done();
+              })
+          })
+          .catch(done)
+    })
+    it('should allow user to change password', (done) => {
+      let cookie;
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'student@gmail.com', password: '1234567' })
+          .then((res) => {
+              // logs on user & stores their session to use for the next server request
+              userSession = res.body.userSession
+              cookie = mockSession('session', process.env.SECRET, userSession);
+              res.body.should.be.eql({
+                  status: "success",
+                  message: "User logged in successfully.",
+                  userSession
+              });
+              return chai.request(app)
+                          .patch(changePassword)
+                          .set('cookie', [cookie])
+                          .send({ password: 'pizza123', confirmPassword: 'pizza123'})
+                          .then((res) => {
+                            res.body.message.should.be.eql('User successfully updated');
+                            res.status.should.be.eql(200);
+                            return chai.request(app)
+                                        .post(loginUrl)
+                                        .send({ email: 'student@gmail.com', password: 'pizza123' })
+                                        .then((res) => {
+                                          res.body.message.should.be.eql('User logged in successfully.');
+                                          res.status.should.be.eql(200);
+                                          done();
+                                        })
+              })
+          })
+          .catch(done)
+    })
+  })
 
 })
