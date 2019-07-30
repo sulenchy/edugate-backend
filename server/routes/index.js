@@ -10,7 +10,6 @@ import {
     checkAdminPrivilege,
 }
     from '../middlewares/checkUser';
-import { validatePassword } from '../middlewares/passwordValidation.js'
 
 
 const router = express.Router();
@@ -22,8 +21,6 @@ router.get('/api/v1/users/logout', UserController.logout);
 router.post('/api/v1/users/signup', UserValidator.validateUserSignUp, UserValidator.checkExistingEmail, UserController.signUp);
 
 router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
-
-router.patch('/api/v1/users/changePassword', validatePassword, UserController.changePassword);
 
 router.use(checkUserIsLoggedIn);
 
