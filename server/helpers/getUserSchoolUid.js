@@ -2,7 +2,7 @@ import models from '../models';
 
 const { Users } = models;
 
-const compareSchoolUid = async (user_uid, school_uid) => {
+export const compareSchoolUid = async (user_uid, school_uid) => {
     try {
         const user = await Users.findOne({
             where: {
@@ -17,4 +17,19 @@ const compareSchoolUid = async (user_uid, school_uid) => {
     }
 }
 
-export default compareSchoolUid;
+
+export const isUserStatusDeleted = async (user_uid) => {
+    try {
+        const user = await Users.findOne({
+            where: {
+                user_uid
+            }
+        });
+
+        if( user.status === 'deleted' ) return true;
+    }
+    catch (err) {
+        return false;
+    }
+}
+

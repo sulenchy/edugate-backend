@@ -15,4 +15,6 @@ router.post('/api/v1/results/addresults', checkIfUserHasSchool, AddResultsValida
 
 router.get('/api/v1/results/toplevel', checkIfUserHasSchool,ResultsController.getAllResults)
 
+router.delete('/api/v1/results/result', checkIfUserHasSchool, ResultsController.delete);
+
 export default router;

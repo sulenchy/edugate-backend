@@ -4,7 +4,7 @@ import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 import setUserResultToDelete from '../helpers/setUserResultToDelete';
-import compareSchoolUid  from '../helpers/getUserSchoolUid';
+import { compareSchoolUid, isUserStatusDeleted}  from '../helpers/getUserSchoolUid';
 
 const { Users } = models;
 
@@ -196,35 +196,45 @@ class UsersController {
   * @param {object} res - response object
   */
   static async delete(req, res) {
-    /**
-     * ------TODO------
-     * Get the user_uid
-     * Check if the user and the admin has samme school_uid
-     * Delete the user
-     */
-
-
-    const { user } = req.params;
+    const { user_uid } = req.query;
     const { school_uid } = req.session;
 
     try {
-      const deletePrivilege = compareSchoolUid(user, school_uid);
+      // checks if a user is selected
+      if(!user_uid){
+        return res.status(422).json({
+          status: 'failure',
+          error: 'Please, select a user to be deleted'
+        })
+      }
+      const deletePrivilege = await compareSchoolUid(user_uid, school_uid);
+
+      // checks for user delete privilege
       if (!deletePrivilege) {
         return res.status(400).json({
           status: 'failure',
-          message: 'Sorry, you do not have the required privilege'
+          error: 'Sorry, you do not have the required privilege'
         })
       }
+
+      // checks the status of the user
+      const status = await isUserStatusDeleted(user_uid);
+      if(status){
+        return res.status(404).json({
+          status: 'failure',
+          error: 'Sorry, user does not exist again.'
+        })
+      }
+
       const updatedUser = await Users.update(
         { status: 'deleted' },
         {
           where: {
-            user_uid: user
+            user_uid
           }
         })
 
-      const updatedResults = setUserResultToDelete(user);
-
+      const updatedResults = setUserResultToDelete(user_uid);
       if (updatedUser && updatedResults) {
         res.status(200).json({
           status: 'success',

@@ -1,7 +1,7 @@
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
-
+import { isResultStatusDeleted } from '../helpers/getResultHelpers';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Results, Users } = models;
@@ -158,30 +158,59 @@ class ResultsController {
   }
 
   /**
-  * @description - delete user
+  * @description - delete result
   * @param {object} req - request object
   * @param {object} res - response object
   */
   static async delete(req, res) {
 
-    const { user_uid } = req.params;
-    // const { school_uid } = req.session;
+    const { result_uid, user_uid, subject, exam, term, year } = toLowerCase(req.query);
 
     try {
-      // const deletePrivilege = compareSchoolUid(user_uid, school_uid);
-      // if (!deletePrivilege) {
-      //   return res.status(400).json({
-      //     status: 'failure',
-      //     message: 'Sorry, user does not have a school'
-      //   })
-      // }
-      const updateUser = await Users.update(
-        { status: 'deleted' },
-        {
-          where: {
-            user_uid
-          }
+
+      const options = {
+        where: {}
+      }
+
+      if(result_uid){
+        options.where.result_uid = result_uid;
+      }
+
+      if (user_uid) {
+        options.where.user_uid = user_uid;
+      }
+
+      if (subject) {
+        options.where.subject = subject;
+      }
+
+      if (exam) {
+        options.where.exam = exam;
+      }
+
+      if (term) {
+        options.where.term = term;
+      }
+
+      if (year) {
+        options.where.year = year;
+      }
+
+      
+      // checks the status of the result(s)
+      const status = await isResultStatusDeleted(options);
+
+      if(status){
+        return res.status(404).json({
+          status: 'failure',
+          error: 'Sorry, result does not exist again.'
         })
+      }
+
+      const updateUser = await Results.update(
+        { status: 'deleted' },
+        options
+      )
       if (updateUser) {
         res.status(200).json({
           status: 'success',
