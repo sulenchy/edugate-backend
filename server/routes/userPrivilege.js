@@ -1,6 +1,6 @@
 import express from 'express';
 import ResultsController from '../controllers/resultsController';
-import { checkIfUserHasSchool, checkStudentPrivilege } 
+import { checkIfUserHasSchool, checkStudentPrivilege }
     from '../middlewares/checkUser';
 
 const router = express.Router();

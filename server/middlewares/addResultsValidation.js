@@ -3,7 +3,8 @@ import formatExcel from '../helpers/formatExcel';
 import emailToUid from '../helpers/emailToUid';
 import sendError from '../helpers/sendError';
 import { toLowerCase } from '../helpers/convertToLowerCase';
-import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow'
+import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow';
+import { removeUndefinedInputs } from '../helpers/removeUndefinedInputs.js';
 
 const dataInputs = ['email', 'year', 'term', 'subject', 'exam', 'mark', 'grade'];
 
@@ -53,6 +54,23 @@ class addResultsValidation {
     }
   }
 
+  static async validateUpdateResults(req, res, next) {
+    try {
+      const { year, subject, exam, mark, term } = req.body;
+      let result = { year, subject, exam, mark, term };
+      result = toLowerCase(result);
+      let resultUpdatedInputs = removeUndefinedInputs([result]);
+      const inputErrs = addResultsValidation.checkInputs(resultUpdatedInputs);
+      if (Object.keys(inputErrs).length) return sendError(res, 422, inputErrs);
+      const { student_result_id } = res.locals;
+      resultUpdatedInputs = ExcelValidators.updateStudentResultId(student_result_id, resultUpdatedInputs[0]);
+      res.locals.result = resultUpdatedInputs[0];
+      next();
+    } catch(err) {
+      return err
+    }
+  }
+
   static checkInputs(results) {
     let errors = {};
     for (let i = 0; i < results.length; i++) {
@@ -70,7 +88,7 @@ class addResultsValidation {
             email: ExcelValidators.validateEmail(value),
             year: ExcelValidators.validateYear(value),
             term: ExcelValidators.validateTerm(value),
-            subject: ExcelValidators.isAlphanumeric(value),
+            subject: ExcelValidators.isAlpha(value),
             exam: ExcelValidators.isAlphanumeric(value),
             mark: ExcelValidators.validateMark(value),
             grade: ''
