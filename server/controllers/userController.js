@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+const { validationResult } = require('express-validator/check');
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
@@ -187,6 +188,37 @@ class UsersController {
       }
     } catch(err) {
         sendError(res, 500, err)
+    }
+  }
+
+  static async changePassword(req, res) {
+    try {
+      const { newPassword } = req.body;
+      const { user_uid } = req.session;
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const errorsMsg = errors.array().map(x => x.msg)
+        return sendError(res, 422, errorsMsg)
+      }
+
+      const hashNewPassword = bcrypt.hashSync(newPassword, 10);
+      const updatedUser = await Users.update({ password: hashNewPassword }, {
+        where: {
+          user_uid
+        },
+        returning: true
+      })
+      if (updatedUser) {
+        let updatedInfo = updatedUser[1][0];
+        return res.status(200).json({
+          status: 'success',
+          message: 'User successfully updated',
+          updatedUser: updatedInfo.email
+        })
+      }
+    } catch (err) {
+      sendError(res, 500, err)
     }
   }
 

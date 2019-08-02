@@ -12,7 +12,6 @@ import {
     from '../middlewares/checkUser';
 
 
-
 const router = express.Router();
 // default route
 router.get('/', (req, res) => res.send('Welcome to EduGate!'))
