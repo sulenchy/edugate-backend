@@ -171,16 +171,10 @@ class UsersController {
 
   static async updateUser(req, res) {
     try {
-      const { email, first_name, last_name, dob, year_of_graduation, phone_number, role } = res.locals.user;
-      const loggedInUserRole = req.session.role;
-      const updateData = { first_name, last_name, dob, year_of_graduation, phone_number };
-      // only admin & super admin can change a user's role
-      if (['admin', 'super admin'].includes(loggedInUserRole)) {
-        updateData.role = role;
-      }
+      let updateData = res.locals.user;
       const updatedUser = await Users.update(updateData, {
         where: {
-          email
+          user_uid: req.query.user_uid
         },
         returning: true
       })

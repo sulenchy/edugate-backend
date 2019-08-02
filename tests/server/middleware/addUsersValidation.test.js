@@ -18,7 +18,7 @@ const { Users } = db;
 
 const addUsersUrl = '/api/v1/users/addusers';
 const loginUrl = '/api/v1/users/login';
-const updateUserUrl = '/api/v1/users/update';
+const updateUserUrl = '/api/v1/users/update?user_uid=';
 
 let userSession = ''
 
@@ -215,9 +215,9 @@ describe('Add users validation unit tests', () => {
   it('should give error if invalid data to update user', (done) => {
     let cookie = mockSession('session', process.env.SECRET, userSession);
     chai.request(app)
-        .post(updateUserUrl)
+        .patch(updateUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f610')
         .set('cookie', [cookie])
-        .send({ user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610', email: 'student@gmail.com', first_name: '123124', last_name: '', dob: 1234, year_of_graduation: '', role: 'pizza' })
+        .send({ email: 'student@gmail.com', first_name: '123124', dob: 1234, year_of_graduation: '', role: 'pizza' })
         .then((res) => {
           res.status.should.be.eql(422);
           res.body.should.be.eql({
@@ -226,9 +226,8 @@ describe('Add users validation unit tests', () => {
               0: {
                 dob: "Should be a string",
                 first_name: "Name should only contain letters",
-                last_name: "Name should only contain letters",
                 role: "Invalid role",
-                year_of_graduation: "Invalid year"
+                year_of_graduation: "Cannot be empty"
              }
             },
           });

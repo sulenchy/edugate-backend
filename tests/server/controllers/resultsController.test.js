@@ -2,10 +2,13 @@ import chai from 'chai';
 import chaiHttp from 'chai-http';
 import fs from 'fs';
 import path from 'path';
-import bcrypt from 'bcryptjs';
 import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index'
+import {
+    privilegeUsers,
+    resultValidData
+} from '../../mockData/userMockData';
 
 chai.use(chaiHttp);
 chai.should();
@@ -23,58 +26,15 @@ const getAllResultsUrlSearchBySubjectStudent = '/api/v1/results?subject=Maths';
 const getAllResultsUrlSearchByTermStudent = '/api/v1/results?term=2';
 const getAllResultsUrlSearchByYearStudent = '/api/v1/results?year=2010';
 const logoutUrl = '/api/v1/users/logout';
+const updateResultUrl = '/api/v1/results/update?result_uid=';
 
 let userSession = '';
 
 describe("Results Controller", () => {
     before(async () => {
         try {
-            await Users.create({
-                user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
-                first_name: 'John',
-                last_name: 'Doe',
-                dob: new Date(),
-                year_of_graduation: '2020',
-                role: 'admin',
-                password: bcrypt.hashSync('1234567', 10),
-                phone_number: '07038015455',
-                email: 'jamsgra.doey@gmail.com',
-            });
-        } catch (err) {
-            return err;
-        }
-
-        try {
-            await Users.create({
-                user_uid: '40e6215d-b5c6-4896-987c-f30f3678f665',
-                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
-                first_name: 'sulenchy',
-                last_name: 'teacher',
-                dob: new Date(),
-                year_of_graduation: '2020',
-                role: 'teacher',
-                password: bcrypt.hashSync('1234567', 10),
-                phone_number: '07038015455',
-                email: 'sulenchy.teacher@gmail.com',
-            });
-        } catch (err) {
-            return err;
-        }
-
-        try {
-            await Users.create({
-                user_uid: '40e6215d-b5c6-4896-987c-f30f3678f600',
-                school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
-                first_name: 'sulenchy',
-                last_name: 'student',
-                dob: new Date(),
-                year_of_graduation: '2020',
-                role: 'student',
-                password: bcrypt.hashSync('1234567', 10),
-                phone_number: '07038015455',
-                email: 'sulenchy.student@gmail.com',
-            });
+            await Users.bulkCreate(privilegeUsers);
+            await Results.bulkCreate(resultValidData);
         } catch (err) {
             return err;
         }
@@ -221,7 +181,7 @@ describe("Results Controller", () => {
         it('should login teacher', (done) => {
             chai.request(app)
             .post(loginUrl)
-            .send({ email: 'sulenchy.teacher@gmail.com', password: '1234567' })
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
             .end((err, res) => {
                 userSession = res.body.userSession;
                 res.body.should.be.eql({
@@ -231,7 +191,7 @@ describe("Results Controller", () => {
                 });
                 done();
             });
-            
+
         })
 
         it('should get result for teacher', (done) => {
@@ -316,7 +276,7 @@ describe("Results Controller", () => {
          it('should login student', (done) => {
             chai.request(app)
             .post(loginUrl)
-            .send({ email: 'sulenchy.student@gmail.com', password: '1234567' })
+            .send({ email: 'student@gmail.com', password: '1234567' })
             .end((err, res) => {
                 userSession = res.body.userSession
                 res.body.should.be.eql({
@@ -392,4 +352,140 @@ describe("Results Controller", () => {
             })
         });
     });
+
+    describe('update result', () => {
+      it('should not allow students to update result', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'student@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .patch(updateResultUrl)
+                            .set('cookie', [cookie])
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow auth user to update result without result id', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .patch(updateResultUrl)
+                            .set('cookie', [cookie])
+                            .send({ year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
+                            .then((res) => {
+                              res.status.should.be.eql(400);
+                              res.body.error.should.be.eql('No result id sent');
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow auth user to update result with unknown id', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .patch(updateResultUrl + '85811cc6-5001-435e-bd58-b69d902b1c8e')
+                            .set('cookie', [cookie])
+                            .send({ year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
+                            .then((res) => {
+                              res.body.should.be.eql({error: "Result not found", status: "failure"});
+                              res.status.should.be.eql(404);
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should not allow auth user to update result from different school', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .patch(updateResultUrl + '9a958e6a-97fb-4d2f-ab18-bfb30708fa05')
+                            .set('cookie', [cookie])
+                            .send({ year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
+                            .then((res) => {
+                              res.body.should.be.eql({error: "Sorry, you do not have the required privilege to update result from different school", status: "failure"});
+                              res.status.should.be.eql(401);
+                              done();
+                })
+            })
+            .catch(done)
+      })
+      it('should allow auth user to update result', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'teacher@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .patch(updateResultUrl + '9a958e6a-97fb-4d2f-ab18-bfb30708fa04')
+                            .set('cookie', [cookie])
+                            .send({ year: '2009', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '1' })
+                            .then((res) => {
+                              res.body.should.be.eql({
+                                message: "Result successfully updated",
+                                status: "success",
+                                updatedResult: "40e6215d-b5c6-4896-987c-f30f3678f610.2009.1.gr2423"
+                              })
+                              res.status.should.be.eql(200);
+                              done();
+                })
+            })
+            .catch(done)
+      })
+    })
 })

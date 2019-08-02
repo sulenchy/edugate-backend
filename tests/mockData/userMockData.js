@@ -61,6 +61,31 @@ export const userDataLoginValidData = {
     password: '123testing'
 };
 
+export const resultValidData = [{
+    result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa04',
+    user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610',
+    school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
+    student_result_id: '40e6215d-b5c6-4896-987c-f30f3678f610.2010.2.gr100',
+    year: '2010',
+    term: '2',
+    subject: 'Maths',
+    exam: 'GR100',
+    mark: '10/100',
+    grade: 'F',
+  },
+  {
+      result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa05',
+      user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610',
+      school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
+      student_result_id: '40e6215d-b5c6-4896-987c-f30f3678f610.2010.2.gr100',
+      year: '2010',
+      term: '2',
+      subject: 'Maths',
+      exam: 'GR100',
+      mark: '10/100',
+      grade: 'F',
+    }];
+
 export const privilegeUsers = [
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f607',
