@@ -23,7 +23,7 @@ class ExcelValidators {
   }
 
   static checkEmptyInput(input) {
-    if (input === 'empty') {
+    if (input === 'empty' || input === '') {
       return 'Cannot be empty'
     }
   }
@@ -47,7 +47,7 @@ class ExcelValidators {
   }
 
   static validateRole(role) {
-    if (role !== 'teacher' && role !== 'student') {
+    if (!['student', 'teacher', 'admin', 'super admin'].includes(role)) {
       return 'Invalid role'
     }
   }
@@ -80,9 +80,9 @@ class ExcelValidators {
     }
   }
 
-  static isEmail(value) {
-    if(!Validator.isEmail(value)) {
-      return 'Should be valid email'
+  static isAlpha(value) {
+    if (!Validator.isAlpha(value)) {
+      return 'Should only contain letters'
     }
   }
 
@@ -121,6 +121,51 @@ class ExcelValidators {
     return results;
   }
 
+  static updateStudentResultId(student_result_id, updatedData) {
+    const oldData = student_result_id.split('.');
+    const result = {
+      user_uid: oldData[0],
+      year: updatedData.year || oldData[1],
+      term: updatedData.term || oldData[2],
+      exam: updatedData.exam || oldData[3]
+    }
+    return ExcelValidators.addStudentResultId([result]);
+  }
+
+  static dataToString(data) {
+    for (let record of data) {
+      for (let input of Object.keys(record)) {
+        if (typeof record[input] !== "string") {
+          const stringData = record[input].toString();
+          record[input] = stringData;
+        }
+      }
+    }
+    return data;
+  }
+
+  static checkString(value) {
+    if (typeof value !== "string") {
+      return "Should be a string"
+    }
+  }
+
+  static checkStringsInObjs(data) {
+    let errs = {};
+    for (let i = 0; i < data.length; i++) {
+      let recordErrs = {};
+      for (let input of Object.keys(data[i])) {
+        if (typeof data[i][input] !== "string") {
+          recordErrs[input] = "Should be a string"
+        }
+      }
+      if (Object.keys(recordErrs).length) {
+        errs[i] = recordErrs;
+      }
+    }
+    return errs;
+  }
+
   static async checkResultTableDuplicate(results) {
     try {
       let errs = {};
@@ -141,6 +186,21 @@ class ExcelValidators {
     }
   }
 
+  static async checkUserTableEmail(email) {
+    try {
+      const found = await Users.findOne({
+        where: {
+          email: email,
+        }
+      })
+      if (found) {
+        return 'Email already registered'
+      }
+    } catch (err) {
+      return err
+    }
+  }
+
   static async checkUserTableDuplicate(users) {
     try {
       let errs = {};
@@ -152,7 +212,7 @@ class ExcelValidators {
           }
         })
         if (found) {
-          errs[i] = 'Duplicate record found'
+          errs[i] = 'Email already registered'
         }
       }
       return errs;

@@ -1,6 +1,7 @@
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
+import sendError from '../helpers/sendError.js';
 import { isResultStatusDeleted } from '../helpers/getResultHelpers';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 
@@ -12,7 +13,7 @@ const { Results, Users } = models;
  */
 class ResultsController {
   /**
- * @description - 
+ * @description -
  * @param {object} req - request object
  * @param {object} res - response object
  * @returns {object} - returns results
@@ -36,12 +37,7 @@ class ResultsController {
         return res.status(201).json(resObj);
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err);
     }
   }
 
@@ -59,7 +55,7 @@ class ResultsController {
 
 
       const options = {
-        attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
+        attributes: ['result_uid', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
         where: {},
         include: [{ model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'] }],
         order: [['subject', 'ASC']]
@@ -90,13 +86,7 @@ class ResultsController {
       })
     }
     catch (err) {
-      return res.status(500)
-        .json({
-          status: 'failure',
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err);
     }
   }
 
@@ -114,7 +104,7 @@ class ResultsController {
 
       // specifies options in the findAll sequelize method
       const options = {
-        attributes: ['id', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
+        attributes: ['result_uid', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
         where: {},
         order: [['subject', 'ASC']]
       };
@@ -147,13 +137,30 @@ class ResultsController {
       })
     }
     catch (err) {
-      return res.status(500)
-        .json({
-          status: 'failure',
-          errors: {
-            message: [err.message]
-          },
+      return sendError(res, 500, err);
+    }
+  }
+
+  static async updateResult(req, res) {
+    try {
+      const updateData = res.locals.result;
+      const updatedResult = await Results.update(updateData, {
+        where: {
+          result_uid: req.query.result_uid
+        },
+        returning: true
+      })
+      if (updatedResult) {
+        let updatedInfo = updatedResult[1][0];
+        return res.status(200).json({
+          status: 'success',
+          message: 'Result successfully updated',
+          updatedResult: updatedInfo.student_result_id
         })
+      }
+
+    } catch (err) {
+      return sendError(res, 500, err);
     }
   }
 
@@ -196,7 +203,7 @@ class ResultsController {
         options.where.year = year;
       }
 
-      
+
       // checks the status of the result(s)
       const status = await isResultStatusDeleted(options);
 

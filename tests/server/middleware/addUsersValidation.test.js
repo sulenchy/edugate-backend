@@ -6,6 +6,9 @@ import path from 'path';
 import mockSession from 'mock-session';
 import app from '../../../server/app';
 import db from '../../../server/models/index';
+import {
+    privilegeUsers
+} from '../../mockData/userMockData';
 
 
 chai.use(chaiHttp);
@@ -15,6 +18,7 @@ const { Users } = db;
 
 const addUsersUrl = '/api/v1/users/addusers';
 const loginUrl = '/api/v1/users/login';
+const updateUserUrl = '/api/v1/users/update?user_uid=';
 
 let userSession = ''
 
@@ -22,18 +26,7 @@ describe('Add users validation unit tests', () => {
 
   before(async() => {
     try{
-      await Users.create({
-        user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-        school_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
-        first_name: 'John',
-        last_name: 'Doe',
-        dob: new Date(),
-        year_of_graduation: '2020',
-        role: 'admin',
-        password: bcrypt.hashSync('1234567', 10),
-        phone_number: '07038015455',
-        email: 'jamsgra.doey@gmail.com',
-      });
+      await Users.bulkCreate(privilegeUsers);
     } catch (err) {
       return err;
     }
@@ -43,7 +36,7 @@ describe('Add users validation unit tests', () => {
     await Users.destroy({ where: {} })
   })
 
-  it('should give error if no file sent', (done) => {
+  it('should give error if not logged in', (done) => {
     let cookie = mockSession('session', process.env.SECRET, '');
     chai.request(app)
       .post(addUsersUrl)
@@ -52,7 +45,7 @@ describe('Add users validation unit tests', () => {
         res.status.should.be.eql(401);
         res.body.should.be.eql({
           status: 'failure',
-          message: 'Please, Login'
+          error: 'Please login'
         });
         done();
       })
@@ -71,7 +64,7 @@ describe('Add users validation unit tests', () => {
           done()
         });
     });
-  
+
     it('should give error if no file sent', (done) => {
       let cookie = mockSession('session', process.env.SECRET, userSession);
       chai.request(app)
@@ -200,4 +193,46 @@ describe('Add users validation unit tests', () => {
           done();
         })
   });
+
+  it('should give error when trying to set user role above privilege level', (done) => {
+    let cookie = mockSession('session', process.env.SECRET, userSession);
+    chai.request(app)
+        .post(addUsersUrl)
+        .set('cookie', [cookie])
+        .attach('addUsers', fs.readFileSync(path.join(__dirname, '../../mockData/addUsersDataInvalidRolePrivilege.xlsx')), 'addUsersDataInvalidRolePrivilege.xlsx')
+        .end((err, res) => {
+          res.body.should.be.eql({
+            status: 'failure',
+            error: {
+              2: 'You do not have the correct privilege to set user as admin or super admin'
+            },
+          });
+          res.status.should.be.eql(422);
+          done();
+        })
+  });
+
+  it('should give error if invalid data to update user', (done) => {
+    let cookie = mockSession('session', process.env.SECRET, userSession);
+    chai.request(app)
+        .patch(updateUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f610')
+        .set('cookie', [cookie])
+        .send({ email: 'student@gmail.com', first_name: '123124', dob: 1234, year_of_graduation: '', role: 'pizza' })
+        .then((res) => {
+          res.status.should.be.eql(422);
+          res.body.should.be.eql({
+            status: 'failure',
+            error: {
+              0: {
+                dob: "Should be a string",
+                first_name: "Name should only contain letters",
+                role: "Invalid role",
+                year_of_graduation: "Cannot be empty"
+             }
+            },
+          });
+          done();
+        })
+        .catch(done);
+  })
 });

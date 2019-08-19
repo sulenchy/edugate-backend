@@ -1,8 +1,10 @@
 import bcrypt from 'bcryptjs';
+const { validationResult } = require('express-validator/check');
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import { toLowerCase } from '../helpers/convertToLowerCase';
+import sendError from '../helpers/sendError.js';
 import setUserResultToDelete from '../helpers/setUserResultToDelete';
 import { compareSchoolUid, isUserStatusDeleted}  from '../helpers/getUserSchoolUid';
 
@@ -47,12 +49,7 @@ class UsersController {
         });
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 
@@ -72,7 +69,7 @@ class UsersController {
           email
         }
       });
-      if (!user) return res.status(404).json({ status: 'failure', error: "No User Found" });
+      if (!user) return sendError(res, 404, "No User Found");
       const match = await bcrypt.compare(password, user.password);
       if (match) {
 
@@ -90,13 +87,10 @@ class UsersController {
           userSession
         });
       }
-      return res.status(401).json({
-        status: 'failure',
-        error: "Password is incorrect"
-      })
+      return sendError(res, 401, "Password is incorrect")
     }
     catch (err) {
-      res.status(500).json({ err });
+      return sendError(res, 500, err);
     }
   }
 
@@ -136,12 +130,7 @@ class UsersController {
         return res.status(201).json(resObj);
       }
     } catch (err) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [err.message]
-          },
-        })
+      return sendError(res, 500, err)
     }
   }
 
@@ -159,10 +148,7 @@ class UsersController {
       const { school_uid, role } = req.session;
 
       if (!['student', 'teacher'].includes(query)) {
-        return res.status(422).json({
-          status: 'failure',
-          message: 'Sorry, invalid data supplied. Please enter valid data.'
-        })
+        return sendError(res, 422, 'Sorry, invalid data supplied. Please enter valid data.')
       }
       if (role) {
         userList = await Users.findAll({
@@ -180,13 +166,61 @@ class UsersController {
         userList
       })
     }
-    catch (error) {
-      return res.status(500)
-        .json({
-          errors: {
-            message: [error.message]
-          },
+    catch (err) {
+      return sendError(res, 500, err)
+    }
+  }
+
+  static async updateUser(req, res) {
+    try {
+      let updateData = res.locals.user;
+      const updatedUser = await Users.update(updateData, {
+        where: {
+          user_uid: req.query.user_uid
+        },
+        returning: true
+      })
+      if (updatedUser) {
+        let updatedInfo = updatedUser[1][0];
+        return res.status(200).json({
+          status: 'success',
+          message: 'User successfully updated',
+          updatedUser: updatedInfo.email
         })
+      }
+    } catch(err) {
+        sendError(res, 500, err)
+    }
+  }
+
+  static async changePassword(req, res) {
+    try {
+      const { newPassword } = req.body;
+      const { user_uid } = req.session;
+
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        const errorsMsg = errors.array().map(x => x.msg)
+        return sendError(res, 422, errorsMsg)
+      }
+
+      const hashNewPassword = bcrypt.hashSync(newPassword, 10);
+      const updatedUser = await Users.update({ password: hashNewPassword }, {
+        where: {
+          user_uid
+        },
+        returning: true
+      })
+      if (updatedUser) {
+        let updatedInfo = updatedUser[1][0];
+        return res.status(200).json({
+          status: 'success',
+          message: 'User successfully updated',
+          updatedUser: updatedInfo.email
+        })
+      }
+    } catch (err) {
+      sendError(res, 500, err)
     }
   }
 

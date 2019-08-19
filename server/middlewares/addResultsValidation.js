@@ -3,7 +3,8 @@ import formatExcel from '../helpers/formatExcel';
 import emailToUid from '../helpers/emailToUid';
 import sendError from '../helpers/sendError';
 import { toLowerCase } from '../helpers/convertToLowerCase';
-import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow'
+import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow';
+import { removeUndefinedInputs } from '../helpers/removeUndefinedInputs.js';
 
 const dataInputs = ['email', 'year', 'term', 'subject', 'exam', 'mark', 'grade'];
 
@@ -53,25 +54,48 @@ class addResultsValidation {
     }
   }
 
+  static async validateUpdateResults(req, res, next) {
+    try {
+      const { year, subject, exam, mark, term } = req.body;
+      let result = { year, subject, exam, mark, term };
+      result = toLowerCase(result);
+      let resultUpdatedInputs = removeUndefinedInputs([result]);
+      const inputErrs = addResultsValidation.checkInputs(resultUpdatedInputs);
+      if (Object.keys(inputErrs).length) return sendError(res, 422, inputErrs);
+      const { student_result_id } = res.locals;
+      resultUpdatedInputs = ExcelValidators.updateStudentResultId(student_result_id, resultUpdatedInputs[0]);
+      res.locals.result = resultUpdatedInputs[0];
+      next();
+    } catch(err) {
+      return err
+    }
+  }
+
   static checkInputs(results) {
     let errors = {};
     for (let i = 0; i < results.length; i++) {
       let resultErrors = {};
       const resultRow = i;
-      for (let input of dataInputs) {
+      for (let input of Object.keys(results[i])) {
         const value = results[i][input];
-        let inputError = ExcelValidators.checkEmptyInput(value);
-        const validatorKey = {
-          email: ExcelValidators.validateEmail(value),
-          year: ExcelValidators.validateYear(value),
-          term: ExcelValidators.validateTerm(value),
-          subject: ExcelValidators.isAlphanumeric(value),
-          exam: ExcelValidators.isAlphanumeric(value),
-          mark: ExcelValidators.validateMark(value),
-          grade: ''
-        };
-        inputError = inputError || validatorKey[input];
-        if (inputError) resultErrors[input] = inputError;
+        // Validator only accepts strings
+        let stringError = ExcelValidators.checkString(value);
+        if (stringError) {
+          resultErrors[input] = stringError
+        } else {
+          let inputError = ExcelValidators.checkEmptyInput(value);
+          const validatorKey = {
+            email: ExcelValidators.validateEmail(value),
+            year: ExcelValidators.validateYear(value),
+            term: ExcelValidators.validateTerm(value),
+            subject: ExcelValidators.isAlpha(value),
+            exam: ExcelValidators.isAlphanumeric(value),
+            mark: ExcelValidators.validateMark(value),
+            grade: ''
+          };
+          inputError = inputError || validatorKey[input];
+          if (inputError) resultErrors[input] = inputError;
+        }
       }
     if (Object.keys(resultErrors).length) errors[resultRow] = resultErrors;
     }
