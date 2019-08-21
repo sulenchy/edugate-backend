@@ -166,6 +166,12 @@ export const checkResultDeletePrivilege = async (req, res, next) => {
       returning: true,
     }
 
+    // Check that at least one valid query has been sent
+    const filteredResultOptions = Object.keys(resultOptions).filter(x => resultOptions[x] !== undefined);
+
+    if (!filteredResultOptions.length) return sendError(res, 400, 'No data sent')
+
+    // Add options that are not undefined
     Object.keys(resultOptions).forEach(x => {
       if (resultOptions[x]) options.where[x] = resultOptions[x]
     })
