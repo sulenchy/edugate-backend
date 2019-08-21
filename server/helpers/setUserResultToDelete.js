@@ -6,16 +6,15 @@ const { Results } = models;
 const setUserResultToDelete = async (user_uid) => {
 
     try {
-        const updateResults = await Results.update(
+        const updatedResults = await Results.update(
             { status: 'deleted' },
             {
                 where: {
                     user_uid
-                }
+                },
+                returning: true,
             })
-        if (updateResults) {
-            return true;
-        }
+            return updatedResults
     }
     catch (err) {
         return false;
