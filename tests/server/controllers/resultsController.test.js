@@ -27,6 +27,7 @@ const getAllResultsUrlSearchByTermStudent = '/api/v1/results?term=2';
 const getAllResultsUrlSearchByYearStudent = '/api/v1/results?year=2010';
 const logoutUrl = '/api/v1/users/logout';
 const updateResultUrl = '/api/v1/results/update?result_uid=';
+const deleteResultUrl = '/api/v1/results/delete';
 
 let userSession = '';
 
@@ -431,7 +432,7 @@ describe("Results Controller", () => {
             })
             .catch(done)
       })
-      it('should not allow auth user to update result from different school', (done) => {
+      it('should not allow auth user access to result from different school', (done) => {
         let cookie;
         chai.request(app)
             .post(loginUrl)
@@ -450,8 +451,8 @@ describe("Results Controller", () => {
                             .set('cookie', [cookie])
                             .send({ year: '2010', subject: 'Maths', exam: 'GR2423', mark: '123/150', term: '2' })
                             .then((res) => {
-                              res.body.should.be.eql({error: "Sorry, you do not have the required privilege to update result from different school", status: "failure"});
-                              res.status.should.be.eql(401);
+                              res.body.should.be.eql({error: "Result not found", status: "failure"});
+                              res.status.should.be.eql(404);
                               done();
                 })
             })
@@ -488,4 +489,147 @@ describe("Results Controller", () => {
             .catch(done)
       })
     })
+
+    describe('delete result', () => {
+      it('should not allow student to delete results', (done) => {
+        let cookie;
+        chai.request(app)
+            .post(loginUrl)
+            .send({ email: 'student@gmail.com', password: '1234567' })
+            .then((res) => {
+                // logs on user & stores their session to use for the next server request
+                userSession = res.body.userSession
+                cookie = mockSession('session', process.env.SECRET, userSession);
+                res.body.should.be.eql({
+                    status: "success",
+                    message: "User logged in successfully.",
+                    userSession
+                });
+                return chai.request(app)
+                            .delete(deleteResultUrl)
+                            .set('cookie', [cookie])
+                            .then((res) => {
+                              res.status.should.be.eql(401);
+                              res.body.error.should.be.eql('Sorry, you do not have the required privilege');
+                              done();
+                            })
+            })
+            .catch(done)
+      })
+  })
+
+  it('should not allow admin to delete results from other school', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567' })
+        .then((res) => {
+            // logs on user & stores their session to use for the next server request
+            userSession = res.body.userSession
+            cookie = mockSession('session', process.env.SECRET, userSession);
+            res.body.should.be.eql({
+                status: "success",
+                message: "User logged in successfully.",
+                userSession
+            });
+            return chai.request(app)
+                        .delete(deleteResultUrl + '?result_uid=40e6215d-b5c6-4896-987c-f30f3678f608')
+                        .set('cookie', [cookie])
+                        .then((res) => {
+                          res.body.should.be.eql({
+                            status: 'failure',
+                            error: 'Results not found'
+                          });
+                          res.status.should.be.eql(404);
+                          done();
+                        })
+        })
+        .catch(done)
+  })
+
+  it('should return 404 when results don\'t exist', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567' })
+        .then((res) => {
+            // logs on user & stores their session to use for the next server request
+            userSession = res.body.userSession
+            cookie = mockSession('session', process.env.SECRET, userSession);
+            res.body.should.be.eql({
+                status: "success",
+                message: "User logged in successfully.",
+                userSession
+            });
+            return chai.request(app)
+                        .delete(deleteResultUrl + '?subject=physics')
+                        .set('cookie', [cookie])
+                        .then((res) => {
+                          res.status.should.be.eql(404);
+                          res.body.should.be.eql({
+                            status: 'failure',
+                            error: 'Results not found'
+                          });
+                          done();
+                        })
+        })
+        .catch(done)
+  })
+  it('should return 404 when results found already deleted', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567' })
+        .then((res) => {
+            // logs on user & stores their session to use for the next server request
+            userSession = res.body.userSession
+            cookie = mockSession('session', process.env.SECRET, userSession);
+            res.body.should.be.eql({
+                status: "success",
+                message: "User logged in successfully.",
+                userSession
+            });
+            return chai.request(app)
+                        .delete(deleteResultUrl + '?subject=english&year=2010')
+                        .set('cookie', [cookie])
+                        .then((res) => {
+                          res.status.should.be.eql(404);
+                          res.body.should.be.eql({
+                            status: 'failure',
+                            error: 'Results not found'
+                          });
+                          done();
+                        })
+        })
+        .catch(done)
+  })
+  it('should allow active results to be deleted', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+        .then((res) => {
+            // logs on user & stores their session to use for the next server request
+            userSession = res.body.userSession
+            cookie = mockSession('session', process.env.SECRET, userSession);
+            res.body.should.be.eql({
+                status: "success",
+                message: "User logged in successfully.",
+                userSession
+            });
+            return chai.request(app)
+                        .delete(deleteResultUrl + '?subject=english')
+                        .set('cookie', [cookie])
+                        .then((res) => {
+                          res.status.should.be.eql(200);
+                          res.body.should.be.eql({
+                            status: 'success',
+                            message: 'Result(s) deleted',
+                            deletedResults: 1,
+                          });
+                          done();
+                        })
+        })
+        .catch(done)
+  })
 })

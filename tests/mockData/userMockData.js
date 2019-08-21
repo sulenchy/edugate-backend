@@ -61,17 +61,18 @@ export const userDataLoginValidData = {
     password: '123testing'
 };
 
-export const resultValidData = [{
+export const resultValidData = [
+  {
     result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa04',
     user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610',
     school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
     student_result_id: '40e6215d-b5c6-4896-987c-f30f3678f610.2010.2.gr100',
     year: '2010',
     term: '2',
-    subject: 'Maths',
-    exam: 'GR100',
+    subject: 'maths',
+    exam: 'gr100',
     mark: '10/100',
-    grade: 'F',
+    grade: 'f',
   },
   {
       result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa05',
@@ -80,11 +81,38 @@ export const resultValidData = [{
       student_result_id: '40e6215d-b5c6-4896-987c-f30f3678f610.2010.2.gr100',
       year: '2010',
       term: '2',
-      subject: 'Maths',
-      exam: 'GR100',
+      subject: 'maths',
+      exam: 'gr100',
       mark: '10/100',
-      grade: 'F',
-    }];
+      grade: 'f',
+  },
+  {
+      result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa06',
+      user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610',
+      school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
+      student_result_id: '40e6215d-b5c6-4896-987c-f30f3678f610.2010.2.gr100',
+      year: '2010',
+      term: '1',
+      subject: 'english',
+      exam: 'gr100',
+      mark: '10/100',
+      grade: 'f',
+      status: 'deleted',
+    },
+    {
+        result_uid: '9a958e6a-97fb-4d2f-ab18-bfb30708fa07',
+        user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610',
+        school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
+        student_result_id: '40e6215d-b5c6-4896-987c-f30f3678f610.2010.2.gr100',
+        year: '2011',
+        term: '1',
+        subject: 'english',
+        exam: 'gr100',
+        mark: '10/100',
+        grade: 'f',
+        status: 'active',
+      }
+    ];
 
 export const privilegeUsers = [
   {
