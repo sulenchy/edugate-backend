@@ -231,48 +231,25 @@ class UsersController {
   */
   static async delete(req, res) {
     const { user_uid } = req.query;
-    const { school_uid } = req.session;
 
     try {
-      // checks if a user is selected
-      if(!user_uid){
-        return res.status(422).json({
-          status: 'failure',
-          error: 'Please, select a user to be deleted'
-        })
-      }
-      const deletePrivilege = await compareSchoolUid(user_uid, school_uid);
-
-      // checks for user delete privilege
-      if (!deletePrivilege) {
-        return res.status(400).json({
-          status: 'failure',
-          error: 'Sorry, you do not have the required privilege'
-        })
-      }
-
-      // checks the status of the user
-      const status = await isUserStatusDeleted(user_uid);
-      if(status){
-        return res.status(404).json({
-          status: 'failure',
-          error: 'Sorry, user does not exist again.'
-        })
-      }
-
-      const updatedUser = await Users.update(
+      const deletedUser = await Users.update(
         { status: 'deleted' },
         {
           where: {
             user_uid
-          }
+          },
+          returning: true
         })
 
-      const updatedResults = setUserResultToDelete(user_uid);
-      if (updatedUser && updatedResults) {
+      const deletedResults = await setUserResultToDelete(user_uid);
+      if (deletedUser && deletedResults) {
+        let deletedInfo = deletedUser[1][0];
         res.status(200).json({
           status: 'success',
-          updatedUser
+          message: 'User successfully deleted',
+          deletedUser: deletedInfo.email,
+          deletedResults: deletedResults[0],
         })
       }
     }

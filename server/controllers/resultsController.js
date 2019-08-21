@@ -170,58 +170,18 @@ class ResultsController {
   * @param {object} res - response object
   */
   static async delete(req, res) {
-
-    const { result_uid, user_uid, subject, exam, term, year } = toLowerCase(req.query);
-
     try {
+      const { options } = res.locals;
 
-      const options = {
-        where: {}
-      }
-
-      if(result_uid){
-        options.where.result_uid = result_uid;
-      }
-
-      if (user_uid) {
-        options.where.user_uid = user_uid;
-      }
-
-      if (subject) {
-        options.where.subject = subject;
-      }
-
-      if (exam) {
-        options.where.exam = exam;
-      }
-
-      if (term) {
-        options.where.term = term;
-      }
-
-      if (year) {
-        options.where.year = year;
-      }
-
-
-      // checks the status of the result(s)
-      const status = await isResultStatusDeleted(options);
-
-      if(status){
-        return res.status(404).json({
-          status: 'failure',
-          error: 'Sorry, result does not exist again.'
-        })
-      }
-
-      const updateUser = await Results.update(
+      const deletedResults = await Results.update(
         { status: 'deleted' },
-        options
+        options,
       )
-      if (updateUser) {
+      if (deletedResults) {
         res.status(200).json({
           status: 'success',
-          updateUser
+          message: 'Result(s) deleted',
+          deletedResults: deletedResults[0]
         })
       }
     }
