@@ -632,4 +632,32 @@ describe("Results Controller", () => {
         })
         .catch(done)
   })
+  it('should return error if no query sent', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+        .then((res) => {
+            // logs on user & stores their session to use for the next server request
+            userSession = res.body.userSession
+            cookie = mockSession('session', process.env.SECRET, userSession);
+            res.body.should.be.eql({
+                status: "success",
+                message: "User logged in successfully.",
+                userSession
+            });
+            return chai.request(app)
+                        .delete(deleteResultUrl)
+                        .set('cookie', [cookie])
+                        .then((res) => {
+                          res.status.should.be.eql(400);
+                          res.body.should.be.eql({
+                            status: 'failure',
+                            error: 'No data sent'
+                          });
+                          done();
+                        })
+        })
+        .catch(done)
+  })
 })

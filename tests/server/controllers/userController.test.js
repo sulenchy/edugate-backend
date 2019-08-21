@@ -836,14 +836,14 @@ describe("User Controller", () => {
               userSession
           });
           return chai.request(app)
-                      .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f610')
+                      .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f615')
                       .set('cookie', [cookie])
                       .then((res) => {
                         res.body.should.be.eql({
                           status: 'success',
                           message: 'User successfully deleted',
-                          deletedUser: 'student@gmail.com',
-                          deletedResults: 4,
+                          deletedUser: 'deletestudent@gmail.com',
+                          deletedResults: 0,
                         });
                         res.status.should.be.eql(200);
                         done();

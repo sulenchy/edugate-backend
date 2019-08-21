@@ -210,5 +210,17 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'superadmin2@gmail.com',
-  }
+  },
+  {
+      user_uid: '40e6215d-b5c6-4896-987c-f30f3678f615',
+      school_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
+      first_name: 'John',
+      last_name: 'Doe',
+      dob: new Date(),
+      year_of_graduation: '2020',
+      role: 'student',
+      password: bcrypt.hashSync('1234567', 10),
+      phone_number: '07038015455',
+      email: 'deletestudent@gmail.com',
+  },
 ]
