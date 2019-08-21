@@ -3,7 +3,7 @@ import UserController from '../controllers/userController';
 import ResultsController from '../controllers/resultsController';
 import AddResultsValidation from '../middlewares/addResultsValidation';
 import AddUsersValidation from '../middlewares/addUsersValidation';
-import { checkIfUserHasSchool, checkUserUpdatePrivilege, checkResultUpdatePrivilege }
+import { checkIfUserHasSchool, checkUserUpdatePrivilege, checkResultUpdatePrivilege, checkResultDeletePrivilege }
     from '../middlewares/checkUser';
 
 const router = express.Router();
@@ -22,6 +22,6 @@ router.patch('/api/v1/results/update', checkIfUserHasSchool, checkResultUpdatePr
 
 router.get('/api/v1/results/toplevel', checkIfUserHasSchool,ResultsController.getAllResults)
 
-router.delete('/api/v1/results/result', checkIfUserHasSchool, ResultsController.delete);
+router.delete('/api/v1/results/delete', checkIfUserHasSchool, checkResultDeletePrivilege, ResultsController.delete);
 
 export default router;
