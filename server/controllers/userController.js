@@ -155,7 +155,8 @@ class UsersController {
           attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
           where: {
             role: query,
-            school_uid
+            school_uid,
+            status: 'active'
           }
         });
       }

@@ -58,7 +58,8 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
 
     const options = {
       where: {
-        user_uid
+        user_uid,
+        status: 'active'
       }
     }
 
@@ -99,7 +100,8 @@ export const checkResultUpdatePrivilege = async (req, res, next) => {
 
     const options = {
       where: {
-        result_uid
+        result_uid,
+        status: 'active',
       }
     };
 

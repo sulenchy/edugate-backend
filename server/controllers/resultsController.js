@@ -56,7 +56,9 @@ class ResultsController {
 
       const options = {
         attributes: ['result_uid', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
-        where: {},
+        where: {
+          status: 'active'
+        },
         include: [{ model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'] }],
         order: [['subject', 'ASC']]
       };
@@ -105,7 +107,9 @@ class ResultsController {
       // specifies options in the findAll sequelize method
       const options = {
         attributes: ['result_uid', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
-        where: {},
+        where: {
+          status: 'active'
+        },
         order: [['subject', 'ASC']]
       };
 
