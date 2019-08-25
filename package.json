@@ -1,6 +1,9 @@
 {
   "name": "v9-bears-team-21",
   "version": "1.0.0",
+  "engines": {
+    "node": "10.16.0"
+  },
   "description": "Add-project-description-here | Voyage-9 | https://chingu.io/ This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.",
   "main": "app.js",
   "scripts": {
