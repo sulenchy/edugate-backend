@@ -14,7 +14,7 @@ import {
 
 const router = express.Router();
 // default route
-router.get('/', (req, res) => res.send('Welcome to EduGate!'))
+router.get('/api/v1', (req, res) => res.send('Welcome to EduGate API!'))
 
 router.get('/api/v1/users/logout', UserController.logout);
 
