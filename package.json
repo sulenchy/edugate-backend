@@ -7,7 +7,7 @@
     "build": "rm -rf build/ && babel server/ --out-dir build/",
     "lint": "eslint server/**",
     "test": "npm run db-init-test && NODE_ENV=test nyc mocha tests/server/**/**.test.js --require @babel/register --require @babel/polyfill --exit",
-    "start": "node ./build/app",
+    "start": "npm run build && node ./build/app",
     "start-dev": "nodemon --exec babel-node ./server/app",
     "db-migrate": "sequelize db:migrate --env development",
     "db-init-dev": "sequelize db:migrate:undo:all --env development && sequelize db:migrate --env development",
@@ -26,6 +26,9 @@
   },
   "homepage": "https://github.com/chingu-voyages/v9-bears-team-21#readme",
   "dependencies": {
+    "@babel/register": "7.4.4",
+    "@babel/polyfill": "7.4.4",
+    "@babel/preset-env": "7.4.5",
     "bcryptjs": "2.4.3",
     "body-parser": "1.19.0",
     "chai": "4.2.0",
@@ -44,18 +47,15 @@
     "pg-hstore": "2.3.3",
     "sequelize": "5.8.12",
     "uuid": "3.3.2",
-    "xlsx": "^0.14.3"
+    "xlsx": "^0.14.3",
+    "winston": "3.2.1"
   },
   "devDependencies": {
     "@babel/cli": "7.4.4",
     "@babel/core": "7.4.5",
     "@babel/node": "7.4.5",
-    "@babel/polyfill": "7.4.4",
-    "@babel/preset-env": "7.4.5",
-    "@babel/register": "7.4.4",
     "eslint": "5.16.0",
     "eslint-plugin-react": "7.13.0",
-    "nodemon": "1.19.1",
-    "winston": "3.2.1"
+    "nodemon": "1.19.1"
   }
 }
