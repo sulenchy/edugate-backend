@@ -1,19 +1,24 @@
 {
   "name": "v9-bears-team-21",
   "version": "1.0.0",
+  "engines": {
+    "node": "10.16.0"
+  },
   "description": "Add-project-description-here | Voyage-9 | https://chingu.io/ This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.",
   "main": "app.js",
   "scripts": {
     "build": "rm -rf build/ && babel server/ --out-dir build/",
     "lint": "eslint server/**",
     "test": "npm run db-init-test && NODE_ENV=test nyc mocha tests/server/**/**.test.js --require @babel/register --require @babel/polyfill --exit",
-    "start": "npm run build && node ./build/app",
+    "start": "node ./build/app",
     "start-dev": "nodemon --exec babel-node ./server/app",
-    "db-migrate": "sequelize db:migrate --env development",
+    "db-migrate": "sequelize db:migrate --env production",
+    "db-prod-migrate": "sequelize db:migrate",
     "db-init-dev": "sequelize db:migrate:undo:all --env development && sequelize db:migrate --env development",
     "db-init-test": "sequelize db:migrate:undo:all --env test && sequelize db:migrate --env test",
     "db-test-migrate": "sequelize db:migrate --env test",
-    "undo-db-migrate": "sequelize db:migrate:undo:all --env development"
+    "undo-db-migrate": "sequelize db:migrate:undo:all --env development",
+    "heroku-postbuild": "npm run db-migrate && npm run build"
   },
   "repository": {
     "type": "git",
@@ -26,9 +31,11 @@
   },
   "homepage": "https://github.com/chingu-voyages/v9-bears-team-21#readme",
   "dependencies": {
-    "@babel/register": "7.4.4",
+    "@babel/cli": "7.4.4",
+    "@babel/core": "7.4.5",
     "@babel/polyfill": "7.4.4",
     "@babel/preset-env": "7.4.5",
+    "@babel/register": "7.4.4",
     "bcryptjs": "2.4.3",
     "body-parser": "1.19.0",
     "chai": "4.2.0",
@@ -46,13 +53,12 @@
     "pg": "7.11.0",
     "pg-hstore": "2.3.3",
     "sequelize": "5.8.12",
+    "sequelize-cli": "5.5.0",
     "uuid": "3.3.2",
-    "xlsx": "^0.14.3",
-    "winston": "3.2.1"
+    "winston": "3.2.1",
+    "xlsx": "^0.14.3"
   },
   "devDependencies": {
-    "@babel/cli": "7.4.4",
-    "@babel/core": "7.4.5",
     "@babel/node": "7.4.5",
     "eslint": "5.16.0",
     "eslint-plugin-react": "7.13.0",
