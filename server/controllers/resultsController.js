@@ -2,7 +2,7 @@ import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import sendError from '../helpers/sendError.js';
-
+import { isResultStatusDeleted } from '../helpers/getResultHelpers';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Results, Users } = models;
@@ -56,8 +56,10 @@ class ResultsController {
 
       const options = {
         attributes: ['result_uid', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
-        where: {},
-        include: [{model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email']}],
+        where: {
+          status: 'active'
+        },
+        include: [{ model: Users, 'as': 'User', attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'] }],
         order: [['subject', 'ASC']]
       };
 
@@ -105,7 +107,9 @@ class ResultsController {
       // specifies options in the findAll sequelize method
       const options = {
         attributes: ['result_uid', 'year', 'subject', 'exam', 'mark', 'term', 'student_result_id'],
-        where: {},
+        where: {
+          status: 'active'
+        },
         order: [['subject', 'ASC']]
       };
 
@@ -161,6 +165,37 @@ class ResultsController {
 
     } catch (err) {
       return sendError(res, 500, err);
+    }
+  }
+
+  /**
+  * @description - delete result
+  * @param {object} req - request object
+  * @param {object} res - response object
+  */
+  static async delete(req, res) {
+    try {
+      const { options } = res.locals;
+
+      const deletedResults = await Results.update(
+        { status: 'deleted' },
+        options,
+      )
+      if (deletedResults) {
+        res.status(200).json({
+          status: 'success',
+          message: 'Result(s) deleted',
+          deletedResults: deletedResults[0]
+        })
+      }
+    }
+    catch (err) {
+      return res.status(500)
+        .json({
+          errors: {
+            message: [err.message]
+          },
+        })
     }
   }
 }

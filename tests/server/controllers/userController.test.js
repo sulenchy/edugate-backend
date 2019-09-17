@@ -7,13 +7,14 @@ import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
     userDataSignupValidData,
-    privilegeUsers
+    privilegeUsers,
+    resultValidData,
 } from '../../mockData/userMockData';
 
 chai.use(chaiHttp);
 chai.should();
 
-const { Users } = db;
+const { Users, Results } = db;
 
 const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
@@ -23,6 +24,7 @@ const getUsersUrlTeacher = '/api/v1/users/teacher';
 const getUsersUrlInvalid = '/api/v1/users/stu';
 const updateUserUrl = '/api/v1/users/update?user_uid=';
 const changePassword = '/api/v1/users/changePassword';
+const deleteUserUrl = '/api/v1/users/delete?user_uid=';
 
 let userSession = '';
 
@@ -30,6 +32,7 @@ describe("User Controller", () => {
     before(async () => {
         try {
             await Users.bulkCreate(privilegeUsers);
+            await Results.bulkCreate(resultValidData);
         } catch (err) {
             return err;
         }
@@ -37,6 +40,7 @@ describe("User Controller", () => {
 
     after(async () => {
         await Users.destroy({ where: {} })
+        await Results.destroy({ where: {} })
     })
 
     describe("Signup Route", () => {
@@ -319,7 +323,7 @@ describe("User Controller", () => {
                     userSession
                 });
                 return chai.request(app)
-                            .patch(updateUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f609')
+                            .patch(updateUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f610')
                             .set('cookie', [cookie])
                             .send(updateData)
                             .then((res) => {
@@ -514,8 +518,8 @@ describe("User Controller", () => {
                           .set('cookie', [cookie])
                           .send(updateData)
                           .then((res) => {
-                            res.status.should.be.eql(401);
-                            res.body.error.should.be.eql('Sorry, you do not have the required privilege to update user from different school');
+                            res.status.should.be.eql(404);
+                            res.body.error.should.be.eql('User not found');
                             done();
               })
           })
@@ -714,6 +718,139 @@ describe("User Controller", () => {
           })
           .catch(done)
     })
+  })
+
+  describe('deleteUser', () => {
+    it('should not allow teacher to delete user', (done) => {
+      let cookie;
+      chai.request(app)
+          .post(loginUrl)
+          .send({ email: 'teacher@gmail.com', password: '1234567'})
+          .then((res) => {
+            userSession = res.body.userSession
+            cookie = mockSession('session', process.env.SECRET, userSession);
+            res.body.should.be.eql({
+                status: "success",
+                message: "User logged in successfully.",
+                userSession
+            });
+            return chai.request(app)
+                        .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f613')
+                        .set('cookie', [cookie])
+                        .then((res) => {
+                          res.body.error.should.be.eql('Sorry, you do not have the required privilege');
+                          res.status.should.be.eql(401);
+                          done();
+
+                        })
+          })
+          .catch(done)
+    })
+  })
+  it('should not allow admin to delete super admin', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567'})
+        .then((res) => {
+          userSession = res.body.userSession
+          cookie = mockSession('session', process.env.SECRET, userSession);
+          res.body.should.be.eql({
+              status: "success",
+              message: "User logged in successfully.",
+              userSession
+          });
+          return chai.request(app)
+                      .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f608')
+                      .set('cookie', [cookie])
+                      .then((res) => {
+                        res.body.error.should.be.eql('Sorry, you do not have the required privilege to delete user with this role');
+                        res.status.should.be.eql(401);
+                        done();
+
+                      })
+        })
+        .catch(done)
+  })
+  it('should not allow admin to delete student from different school', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567'})
+        .then((res) => {
+          userSession = res.body.userSession
+          cookie = mockSession('session', process.env.SECRET, userSession);
+          res.body.should.be.eql({
+              status: "success",
+              message: "User logged in successfully.",
+              userSession
+          });
+          return chai.request(app)
+                      .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f613')
+                      .set('cookie', [cookie])
+                      .then((res) => {
+                        res.body.error.should.be.eql('User not found');
+                        res.status.should.be.eql(404);
+                        done();
+
+                      })
+        })
+        .catch(done)
+  })
+  it('should return error if user not found', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567'})
+        .then((res) => {
+          userSession = res.body.userSession
+          cookie = mockSession('session', process.env.SECRET, userSession);
+          res.body.should.be.eql({
+              status: "success",
+              message: "User logged in successfully.",
+              userSession
+          });
+          return chai.request(app)
+                      .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f619')
+                      .set('cookie', [cookie])
+                      .then((res) => {
+                        res.body.error.should.be.eql('User not found');
+                        res.status.should.be.eql(404);
+                        done();
+
+                      })
+        })
+        .catch(done)
+  })
+  it('should allow admin to delete student', (done) => {
+    let cookie;
+    chai.request(app)
+        .post(loginUrl)
+        .send({ email: 'admin@gmail.com', password: '1234567'})
+        .then((res) => {
+          userSession = res.body.userSession
+          cookie = mockSession('session', process.env.SECRET, userSession);
+          res.body.should.be.eql({
+              status: "success",
+              message: "User logged in successfully.",
+              userSession
+          });
+          return chai.request(app)
+                      .delete(deleteUserUrl + '40e6215d-b5c6-4896-987c-f30f3678f615')
+                      .set('cookie', [cookie])
+                      .then((res) => {
+                        res.body.should.be.eql({
+                          status: 'success',
+                          message: 'User successfully deleted',
+                          deletedUser: 'deletestudent@gmail.com',
+                          deletedResults: 0,
+                        });
+                        res.status.should.be.eql(200);
+                        done();
+
+                      })
+        })
+        .catch(done)
   })
 
 })

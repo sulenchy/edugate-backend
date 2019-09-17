@@ -1,14 +1,14 @@
-import express from 'express';
+  import express from 'express';
 import UserController from '../controllers/userController';
 import ResultsController from '../controllers/resultsController';
 import AddResultsValidation from '../middlewares/addResultsValidation';
 import AddUsersValidation from '../middlewares/addUsersValidation';
-import { checkIfUserHasSchool, checkUserUpdatePrivilege, checkResultUpdatePrivilege }
+import { checkIfUserHasSchool, checkUserUpdatePrivilege, checkResultUpdatePrivilege, checkResultDeletePrivilege }
     from '../middlewares/checkUser';
 
 const router = express.Router();
 
-// get students from the database
+// get users from the database
 router.get('/api/v1/users/:query', checkIfUserHasSchool, UserController.getUsers);
 
 // update user in the database
@@ -21,5 +21,7 @@ router.post('/api/v1/results/addresults', checkIfUserHasSchool, AddResultsValida
 router.patch('/api/v1/results/update', checkIfUserHasSchool, checkResultUpdatePrivilege, AddResultsValidation.validateUpdateResults, ResultsController.updateResult);
 
 router.get('/api/v1/results/toplevel', checkIfUserHasSchool,ResultsController.getAllResults)
+
+router.delete('/api/v1/results/delete', checkIfUserHasSchool, checkResultDeletePrivilege, ResultsController.delete);
 
 export default router;

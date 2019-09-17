@@ -1,5 +1,6 @@
 import sendError from '../helpers/sendError.js';
 import models from '../models';
+import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Users, Results } = models;
 
@@ -51,21 +52,25 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
   try {
     const { role, school_uid } = req.session;
     const { user_uid } = req.query;
-    if (!user_uid) {
-      return sendError(res, 400, 'No user_uid sent')
-    }
+    if (!user_uid) return sendError(res, 400, 'No user_uid sent')
+
     const updateRole = req.body.role;
-    let foundUser = await Users.findOne({
+
+    const options = {
       where: {
-        user_uid
+        user_uid,
+        status: 'active'
       }
-    })
+    }
+
+    // Only super admin can access users from different schools
+    if (role !== 'super admin') options.where.school_uid = school_uid;
+
+    let foundUser = await Users.findOne(
+      options
+    )
     if (!foundUser) {
       return sendError(res, 404, 'User not found')
-    }
-    // Only super admin can update users from different schools
-    if (foundUser.school_uid !== school_uid && role !== 'super admin') {
-      return sendError(res, 401, 'Sorry, you do not have the required privilege to update user from different school')
     }
     // Only super admin can update super admin or admin, or update role to super admin or admin
     if (role !== 'super admin' && (['admin', 'super admin'].includes(foundUser.role) || ['admin', 'super admin'].includes(updateRole))) {
@@ -76,7 +81,7 @@ export const checkUserUpdatePrivilege = async (req, res, next) => {
       return sendError(res, 401, 'Sorry, you do not have the required privilege to update teacher')
     }
     // Only admin & super admin can change students role
-    if (foundUser.role === 'student' && updateRole !== 'student' && !['admin', 'super admin'].includes(role)) {
+    if (foundUser.role === 'student' && (updateRole && updateRole !== 'student') && !['admin', 'super admin'].includes(role)) {
       return sendError(res, 401, 'Sorry, you do not have the required privilege to update role')
     }
     // store current email of user to be updated
@@ -91,21 +96,96 @@ export const checkResultUpdatePrivilege = async (req, res, next) => {
   try {
     const { role, school_uid } = req.session;
     const { result_uid } = req.query;
-    if (!result_uid) {
-      return sendError(res, 400, 'No result id sent')
-    }
-    let foundResult = await Results.findOne({
+    if (!result_uid) return sendError(res, 400, 'No result id sent')
+
+    const options = {
       where: {
-        result_uid
+        result_uid,
+        status: 'active',
       }
-    })
+    };
+
+    // Only super admin can access results from different schools
+    if (role !== 'super admin') options.where.school_uid = school_uid;
+
+    let foundResult = await Results.findOne(
+      options
+    )
     if (!foundResult) return sendError(res, 404, 'Result not found')
-    // Only super admin can update results from different schools
-    if (foundResult.school_uid !== school_uid && role !== 'super admin') {
-      return sendError(res, 401, 'Sorry, you do not have the required privilege to update result from different school')
-    }
+
     res.locals.student_result_id = foundResult.student_result_id;
     next();
+  } catch (err) {
+    sendError(res, 500, err)
+  }
+}
+
+export const checkUserDeletePrivilege = async (req, res, next) => {
+  try {
+    const { role, school_uid } = req.session;
+    const { user_uid } = req.query;
+
+    if (!user_uid) return sendError(res, 400, 'No user id sent')
+
+    const options = {
+      where: {
+        user_uid,
+        status: 'active',
+      }
+    }
+
+    // Only super admin can access users from different schools
+    if (role !== 'super admin') options.where.school_uid = school_uid;
+
+    let foundUser = await Users.findOne(
+      options
+    );
+
+    if (!foundUser) return sendError(res, 404, 'User not found')
+
+    // Only super admin can delete admins or super admins
+    if (['super admin', 'admin'].includes(foundUser.role) && role !== 'super admin') {
+      return sendError(res, 401, 'Sorry, you do not have the required privilege to delete user with this role')
+    }
+    next();
+  } catch (err) {
+    sendError(res, 500, err)
+  }
+}
+
+export const checkResultDeletePrivilege = async (req, res, next) => {
+  try {
+    const { role, school_uid } = req.session;
+    const { result_uid, user_uid, subject, exam, term, year } = toLowerCase(req.query);
+    const resultOptions = { result_uid, user_uid, subject, exam, term, year }
+
+    const options = {
+      where: {
+        status: 'active'
+      },
+      returning: true,
+    }
+
+    // Check that at least one valid query has been sent
+    const filteredResultOptions = Object.keys(resultOptions).filter(x => resultOptions[x] !== undefined);
+
+    if (!filteredResultOptions.length) return sendError(res, 400, 'No data sent')
+
+    // Add options that are not undefined
+    Object.keys(resultOptions).forEach(x => {
+      if (resultOptions[x]) options.where[x] = resultOptions[x]
+    })
+
+    // Only super admin can access results from different schools
+    if (role !== 'super admin') options.where.school_uid = school_uid;
+
+    const results = await Results.findAll(
+        options
+    );
+
+    if (!results.length) return sendError(res, 404, 'Results not found')
+    res.locals.options = options;
+    next()
   } catch (err) {
     sendError(res, 500, err)
   }

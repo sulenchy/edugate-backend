@@ -43,6 +43,11 @@ export default (sequelize, DataTypes) => {
     },
       type: DataTypes.STRING,
     },
+    status: {
+      allowNull: false,
+      type: DataTypes.STRING,
+      defaultValue: 'active'
+    }
   },{});
   Users.associate = function(models) {
     // associations can be defined here

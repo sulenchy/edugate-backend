@@ -5,6 +5,8 @@ import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 import sendError from '../helpers/sendError.js';
+import setUserResultToDelete from '../helpers/setUserResultToDelete';
+import { compareSchoolUid, isUserStatusDeleted}  from '../helpers/getUserSchoolUid';
 
 const { Users } = models;
 
@@ -150,10 +152,11 @@ class UsersController {
       }
       if (role) {
         userList = await Users.findAll({
-          attributes: ['user_uid', 'first_name','last_name','dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
+          attributes: ['user_uid', 'first_name', 'last_name', 'dob', 'year_of_graduation', 'role', 'phone_number', 'email'],
           where: {
             role: query,
-            school_uid
+            school_uid,
+            status: 'active'
           }
         });
       }
@@ -222,6 +225,51 @@ class UsersController {
     }
   }
 
+  /**
+  * @description - delete user
+  * @param {object} req - request object
+  * @param {object} res - response object
+  */
+  static async delete(req, res) {
+    const { user_uid } = req.query;
+
+    try {
+      const deletedUser = await Users.update(
+        { status: 'deleted' },
+        {
+          where: {
+            user_uid
+          },
+          returning: true
+        })
+
+      const deletedResults = await setUserResultToDelete(user_uid);
+      if (deletedUser && deletedResults) {
+        let deletedInfo = deletedUser[1][0];
+        res.status(200).json({
+          status: 'success',
+          message: 'User successfully deleted',
+          deletedUser: deletedInfo.email,
+          deletedResults: deletedResults[0],
+        })
+      }
+    }
+    catch (err) {
+      return res.status(500)
+        .json({
+          errors: {
+            message: [err.message]
+          },
+        })
+    }
+
+  }
+
+  /**
+  * @description - logout user
+  * @param {object} req - request object
+  * @param {object} res - response object
+  */
   static async logout(req, res) {
     if (req.session) {
       req.session = null;
