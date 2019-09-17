@@ -11,10 +11,7 @@ const router = express.Router();
 // creates new school
 router.post('/api/v1/schools/create', SchoolValidator.validateSchoolCreate, SchoolController.create);
 
-
-// router.delete('/api/v1/users/', (req, res) => res.send('Welcome to EduGate!'))
-
-
+// delete existing users
 router.delete('/api/v1/users/delete', checkIfUserHasSchool, checkUserDeletePrivilege, UserController.delete);
 
 // adds students to the database
