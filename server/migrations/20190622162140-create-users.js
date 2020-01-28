@@ -51,6 +51,11 @@ module.exports = {
         defaultValue: 'active',
         type: Sequelize.STRING
       },
+      isVerified: {
+        allowNull: false,
+        defaultValue: false,
+        type: Sequelize.BOOLEAN
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

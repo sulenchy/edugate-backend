@@ -16,8 +16,12 @@ chai.should();
 
 const { Users, Results } = db;
 
+let token = ''
+
 const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
+// TODO 1: add veriy account url
+
 const addUsersUrl = '/api/v1/users/addusers';
 const getUsersUrlStudent = '/api/v1/users/student';
 const getUsersUrlTeacher = '/api/v1/users/teacher';
@@ -49,14 +53,19 @@ describe("User Controller", () => {
                 .post(signupUrl)
                 .send(userDataSignupValidData)
                 .end((err, res) => {
+                    token = res.body.token;
                     res.body.should.be.eql({
                         message: "New account created successfully.",
                         status: "success",
+                        token
                     });
+                    
                     done();
                 });
         });
     })
+
+    // TODO 2: test email verification route
 
     describe("Login Route", () => {
         it('should login successfully', (done) => {

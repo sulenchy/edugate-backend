@@ -47,6 +47,11 @@ export default (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.STRING,
       defaultValue: 'active'
+    },
+    isVerified: {
+      allowNull: false,
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   },{});
   Users.associate = function(models) {

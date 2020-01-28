@@ -20,6 +20,8 @@ router.get('/api/v1/users/logout', UserController.logout);
 
 router.post('/api/v1/users/signup', UserValidator.validateUserSignUp, UserValidator.checkExistingEmail, UserController.signUp);
 
+router.patch('/api/v1/user/verify/', UserController.verify);
+
 router.post('/api/v1/users/login', UserValidator.validateUserLogin, UserController.login);
 
 router.use(checkUserIsLoggedIn);

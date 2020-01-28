@@ -68,7 +68,7 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 ## API Endpoints
 | Verb            | Endpoint           | Description       |
 |-----------------|--------------------|-------------------|
-| GET             | /api/V1            | Home              |
+| GET             | /api/v1            | Home              |
 | GET             | /api/v1/users/logout | Logout           |
 | POST            | /api/v1/users/signup | Signup           |
 | POST            | /api/v1/users/login | Login             |
@@ -83,3 +83,4 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 | POST            | /api/v1/schools/create | Create School(Admin) |
 | DELETE          | /api/v1/users/delete | Delete users (Admin) |
 | POST            | /api/v1/users/addusers | Add Students (Admin) |
+| PATCH            | /api/v1/user/verify/ | Verifies users email |

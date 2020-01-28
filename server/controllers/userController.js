@@ -1,14 +1,18 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 const { validationResult } = require('express-validator/check');
 import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
+import { EMAIL_VERIFY_MSG, EMAIL_VERIFY_SUBJECT, EMAIL_VERIFY_ERROR_MSG } from '../helpers/constant';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 import sendError from '../helpers/sendError.js';
+import sendEmail from '../helpers/sendEmail';
 import setUserResultToDelete from '../helpers/setUserResultToDelete';
-import { compareSchoolUid, isUserStatusDeleted}  from '../helpers/getUserSchoolUid';
 
 const { Users } = models;
+dotenv.config();
 
 /**
  * @class UsersController
@@ -42,15 +46,44 @@ class UsersController {
           school_uid: user.school_uid
         }
         req.session = userSession
-
+        const token = jwt.sign(userSession, process.env.JWT_SECRET, { expiresIn: '1d' });
+        sendEmail(email, EMAIL_VERIFY_SUBJECT, EMAIL_VERIFY_MSG({ first_name, token, url: process.env.HOST_URL }));
         return res.status(201).json({
           status: 'success',
           message: 'New account created successfully.',
+          token
         });
       }
     } catch (err) {
       return sendError(res, 500, err)
     }
+  }
+
+  /**
+   * @description - verify user's email
+   * @param {*} req 
+   * @param {*} res 
+   */
+  static async verify(req, res) {
+    try {
+      const userObject = jwt.verify(req.query.token, process.env.JWT_SECRET);
+      let updateData = userObject;
+        updateData.isVerified = true;
+        const updatedUser = await Users.update(updateData, {
+          where: {
+            user_uid: updateData.user_uid
+          },
+          returning: true
+        })
+        if (updatedUser) {
+          return res.status(200).json({
+            status: 'success',
+            message: 'Hurray!!! Your account has been successfully verified. Thank you.',
+          })
+        }
+      } catch(err) {
+          sendError(res, 500, err);
+      }
   }
 
   /**
@@ -70,10 +103,9 @@ class UsersController {
         }
       });
       if (!user) return sendError(res, 404, "No User Found");
+      // if (!user.isVerified) return sendError(res, 403, EMAIL_VERIFY_ERROR_MSG)
       const match = await bcrypt.compare(password, user.password);
       if (match) {
-
-
         const userSession = {
           user_uid: user.user_uid,
           role: user.role,
@@ -93,6 +125,10 @@ class UsersController {
       return sendError(res, 500, err);
     }
   }
+
+  // TODO 2: create a controller to  check and set the status field to verified
+
+  // how do we invalidate the link so the user can regenerate new link
 
   /**
    * @description - creates password and encrypt it

@@ -8,7 +8,7 @@ import { checkUserPassword, validatePassword } from '../middlewares/passwordVali
 
 const router = express.Router();
 
-router.get('/api/v1/results', checkIfUserHasSchool, checkStudentPrivilege, ResultsController.getUserResults)
+router.get('/api/v1/results', checkIfUserHasSchool, checkStudentPrivilege, ResultsController.getUserResults);
 router.patch('/api/v1/users/changePassword', checkUserPassword, validatePassword, UserController.changePassword);
 
 export default router;
