@@ -64,3 +64,22 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
     $ yarn build
 
+
+## API Endpoints
+| Verb            | Endpoint           | Description       |
+|-----------------|--------------------|-------------------|
+| GET             | /api/V1            | Home              |
+| GET             | /api/v1/users/logout | Logout           |
+| POST            | /api/v1/users/signup | Signup           |
+| POST            | /api/v1/users/login | Login             |
+| PATCH           | /api/v1/users/changePassword | Change Password |
+| GET             | /api/v1/results | View Results |
+| GET             | /api/v1/users/:query | Search for Users |
+| PATCH           | /api/v1/users/update | Update Users |
+| POST            | /api/v1/results/addresults | Add new results(Teacher) |
+| PATCH           | /api/v1/results/update | Update results(Teacher) |
+| GET             | /api/v1/results/toplevel | View results(Teacher) |
+| DELETE          | /api/v1/results/delete | Delete results(Teacher) |
+| POST            | /api/v1/schools/create | Create School(Admin) |
+| DELETE          | /api/v1/users/delete | Delete users (Admin) |
+| POST            | /api/v1/users/addusers | Add Students (Admin) |
