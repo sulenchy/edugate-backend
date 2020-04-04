@@ -20,6 +20,12 @@ export const userDataSignupValidData = {
     last_name: 'doe',
     password: '123testing'
 };
+export const userDataSignupValidDataVerify = {
+    email: 'sulenchy@gmail.com',
+    first_name: 'sulenchy',
+    last_name: 'sulenchy',
+    password: '123testing'
+};
 
 export const userDataWithInvalidPassword = {
     email: 'a@a.com',
@@ -126,6 +132,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'superadmin@gmail.com',
+      isVerified: true
     },
     {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f608',
@@ -138,6 +145,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'jamsgra.doey@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f609',
@@ -150,6 +158,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'teacher@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f610',
@@ -162,6 +171,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'student@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f611',
@@ -174,6 +184,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'teacher2@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f612',
@@ -186,6 +197,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'admin@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f613',
@@ -198,6 +210,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'diffschoolstudent@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f614',
@@ -210,6 +223,7 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'superadmin2@gmail.com',
+      isVerified: true
   },
   {
       user_uid: '40e6215d-b5c6-4896-987c-f30f3678f615',
@@ -222,5 +236,6 @@ export const privilegeUsers = [
       password: bcrypt.hashSync('1234567', 10),
       phone_number: '07038015455',
       email: 'deletestudent@gmail.com',
+      isVerified: true
   },
 ]

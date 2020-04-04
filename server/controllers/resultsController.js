@@ -2,7 +2,6 @@ import models from '../models';
 import removeDuplicates from '../helpers/removeDuplicates';
 import convertIndexToExcelRow from '../helpers/convertIndexToExcelRow.js';
 import sendError from '../helpers/sendError.js';
-import { isResultStatusDeleted } from '../helpers/getResultHelpers';
 import { toLowerCase } from '../helpers/convertToLowerCase';
 
 const { Results, Users } = models;

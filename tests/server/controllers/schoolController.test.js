@@ -31,6 +31,7 @@ describe("School Controller", () => {
                 password: bcrypt.hashSync('1234567', 10),
                 phone_number: '07038015455',
                 email: 'jamsgra.doey@gmail.com',
+                isVerified: true
             });
         } catch (err) {
             return err

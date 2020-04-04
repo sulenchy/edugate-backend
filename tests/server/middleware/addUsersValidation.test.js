@@ -35,7 +35,7 @@ describe('Add users validation unit tests', () => {
   after(async () => {
     await Users.destroy({ where: {} })
   })
-
+  
   it('should give error if not logged in', (done) => {
     let cookie = mockSession('session', process.env.SECRET, '');
     chai.request(app)
@@ -50,35 +50,35 @@ describe('Add users validation unit tests', () => {
         done();
       })
   })
-    it('should login successfully', (done) => {
-      chai.request(app)
-        .post(loginUrl)
-        .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
-        .end((err, res) => {
-          userSession = res.body.userSession;
-          res.body.should.be.eql({
-            status: "success",
-            message: "User logged in successfully.",
-            userSession
-          });
-          done()
+  it('should login successfully', (done) => {
+    chai.request(app)
+      .post(loginUrl)
+      .send({ email: 'jamsgra.doey@gmail.com', password: '1234567' })
+      .end((err, res) => {
+        userSession = res.body.userSession;
+        res.body.should.be.eql({
+          status: 'success',
+          message: 'User logged in successfully.',
+          userSession
         });
-    });
+        done()
+      });
+  });
 
-    it('should give error if no file sent', (done) => {
-      let cookie = mockSession('session', process.env.SECRET, userSession);
-      chai.request(app)
-        .post(addUsersUrl)
-        .set('cookie', [cookie])
-        .end((err, res) => {
-          res.status.should.be.eql(400);
-          res.body.should.be.eql({
-            status: 'failure',
-            error: 'No files were uploaded'
-          });
-          done();
-        })
-    })
+  it('should give error if no file sent', (done) => {
+    let cookie = mockSession('session', process.env.SECRET, userSession);
+    chai.request(app)
+      .post(addUsersUrl)
+      .set('cookie', [cookie])
+      .end((err, res) => {
+        res.status.should.be.eql(400);
+        res.body.should.be.eql({
+          status: 'failure',
+          error: 'No files were uploaded'
+        });
+        done();
+      })
+  })
 
 
   it('should give error if file not correct type', (done) => {
@@ -224,10 +224,10 @@ describe('Add users validation unit tests', () => {
             status: 'failure',
             error: {
               0: {
-                dob: "Should be a string",
-                first_name: "Name should only contain letters",
-                role: "Invalid role",
-                year_of_graduation: "Cannot be empty"
+                dob: 'Should be a string',
+                first_name: 'Name should only contain letters',
+                role: 'Invalid role',
+                year_of_graduation: 'Cannot be empty'
              }
             },
           });

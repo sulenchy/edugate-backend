@@ -40,10 +40,11 @@ class UsersController {
           role
         });
       if (user) {
+        const { user_uid, role, school_uid } = user;
         const userSession = {
-          user_uid: user.user_uid,
-          role: user.role,
-          school_uid: user.school_uid
+          user_uid,
+          role,
+          school_uid
         }
         req.session = userSession
         const token = jwt.sign(userSession, process.env.JWT_SECRET, { expiresIn: '1d' });
@@ -97,21 +98,25 @@ class UsersController {
     const { password } = req.body;
     try {
       const user = await Users.findOne({
-        attributes: ['password', 'user_uid', 'school_uid', 'role'],
+        attributes: ['password', 'user_uid', 'school_uid', 'role', 'isVerified'],
         where: {
           email
         }
       });
-      if (!user) return sendError(res, 404, "No User Found");
-      // if (!user.isVerified) return sendError(res, 403, EMAIL_VERIFY_ERROR_MSG)
+      if (!user) return sendError(res, 404, 'No User Found');
+      
       const match = await bcrypt.compare(password, user.password);
       if (match) {
+        const { user_uid, role, school_uid, isVerified } = user;
         const userSession = {
-          user_uid: user.user_uid,
-          role: user.role,
-          school_uid: user.school_uid
+          user_uid,
+          role,
+          school_uid,
+          isVerified
         }
         req.session = userSession;
+
+        if (!isVerified) return sendError(res, 403, EMAIL_VERIFY_ERROR_MSG)
 
         return res.status(200).json({
           status: 'success',
@@ -126,9 +131,8 @@ class UsersController {
     }
   }
 
-  // TODO 2: create a controller to  check and set the status field to verified
 
-  // how do we invalidate the link so the user can regenerate new link
+  // TODO : how do we invalidate the link so the user can regenerate new link
 
   /**
    * @description - creates password and encrypt it

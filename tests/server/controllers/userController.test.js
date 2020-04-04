@@ -7,9 +7,11 @@ import app from '../../../server/app';
 import db from '../../../server/models/index'
 import {
     userDataSignupValidData,
+    userDataSignupValidDataVerify,
     privilegeUsers,
     resultValidData,
 } from '../../mockData/userMockData';
+// import { EMAIL_VERIFY_MSG, EMAIL_VERIFY_SUBJECT, EMAIL_VERIFY_ERROR_MSG } from '../helpers/constant';
 
 chai.use(chaiHttp);
 chai.should();
@@ -20,7 +22,7 @@ let token = ''
 
 const signupUrl = '/api/v1/users/signup';
 const loginUrl = '/api/v1/users/login';
-// TODO 1: add veriy account url
+const verifyUrl = '/api/v1/users/verify';
 
 const addUsersUrl = '/api/v1/users/addusers';
 const getUsersUrlStudent = '/api/v1/users/student';
@@ -31,8 +33,10 @@ const changePassword = '/api/v1/users/changePassword';
 const deleteUserUrl = '/api/v1/users/delete?user_uid=';
 
 let userSession = '';
+let validToken = '';
+const inValidToken = 'hsdjhsdjhdshsdjhsfksd';
 
-describe("User Controller", () => {
+describe('User Controller', () => {
     before(async () => {
         try {
             await Users.bulkCreate(privilegeUsers);
@@ -47,7 +51,7 @@ describe("User Controller", () => {
         await Results.destroy({ where: {} })
     })
 
-    describe("Signup Route", () => {
+    describe('Signup Route', () => {
         it('should signup successfully', (done) => {
             chai.request(app)
                 .post(signupUrl)
@@ -55,8 +59,8 @@ describe("User Controller", () => {
                 .end((err, res) => {
                     token = res.body.token;
                     res.body.should.be.eql({
-                        message: "New account created successfully.",
-                        status: "success",
+                        message: 'New account created successfully.',
+                        status: 'success',
                         token
                     });
                     
@@ -66,8 +70,64 @@ describe("User Controller", () => {
     })
 
     // TODO 2: test email verification route
+    describe('Verify route', () => {
+        it('should signup successfully', (done) => {
+            chai.request(app)
+                .post(signupUrl)
+                .send(userDataSignupValidDataVerify)
+                .end((err, res) => {
+                    token = res.body.token;
+                    res.body.should.be.eql({
+                        message: 'New account created successfully.',
+                        status: 'success',
+                        token
+                    });
+                    validToken = token;
+                    done();
+                });
+        });
+        it('should login successfully', (done) => {
+            chai.request(app)
+                .post(loginUrl)
+                .send({ email: 'sulenchy@gmail.com', password: '123testing' })
+                .end((err, res) => {
+                    userSession = res.body.userSession
+                    res.status.should.be.eql(403);
+                    res.body.should.be.eql({
+                        status: 'failure',
+                        error: 'Sorry, your account is not verified. A verification email has been sent to you. Please click the link to get verified. Thank you',
+                    });
+                    done();
+                });
+        });
+        it('should verify user`s account', (done) => {
+            chai.request(app)
+            .patch(`${ verifyUrl }?token=${ validToken }`)
+            .end((err, res) => {
+                res.status.should.be.eql(200);
+                res.body.should.be.a('object');
+                res.body.status.should.be.eql('success');
+                done();
+            })
+        })
+        it('should login successfully', (done) => {
+            chai.request(app)
+                .post(loginUrl)
+                .send({ email: 'sulenchy@gmail.com', password: '123testing' })
+                .end((err, res) => {
+                    userSession = res.body.userSession
+                    res.status.should.be.eql(200);
+                    res.body.should.be.eql({
+                        status: 'success',
+                        message: 'User logged in successfully.',
+                        userSession
+                    });
+                    done();
+                });
+        });
+    })
 
-    describe("Login Route", () => {
+    describe('Login Route', () => {
         it('should login successfully', (done) => {
             chai.request(app)
                 .post(loginUrl)
@@ -75,8 +135,8 @@ describe("User Controller", () => {
                 .end((err, res) => {
                     userSession = res.body.userSession
                     res.body.should.be.eql({
-                        status: "success",
-                        message: "User logged in successfully.",
+                        status: 'success',
+                        message: 'User logged in successfully.',
                         userSession
                     });
                     done();
@@ -219,8 +279,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -245,8 +305,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -272,8 +332,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -300,8 +360,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -327,8 +387,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -355,8 +415,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -382,8 +442,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -409,8 +469,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -436,8 +496,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -463,8 +523,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -490,8 +550,8 @@ describe("User Controller", () => {
                 userSession = res.body.userSession
                 cookie = mockSession('session', process.env.SECRET, userSession);
                 res.body.should.be.eql({
-                    status: "success",
-                    message: "User logged in successfully.",
+                    status: 'success',
+                    message: 'User logged in successfully.',
                     userSession
                 });
                 return chai.request(app)
@@ -518,8 +578,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -545,8 +605,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -572,8 +632,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -600,8 +660,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -626,8 +686,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -652,8 +712,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -678,8 +738,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -704,8 +764,8 @@ describe("User Controller", () => {
               userSession = res.body.userSession
               cookie = mockSession('session', process.env.SECRET, userSession);
               res.body.should.be.eql({
-                  status: "success",
-                  message: "User logged in successfully.",
+                  status: 'success',
+                  message: 'User logged in successfully.',
                   userSession
               });
               return chai.request(app)
@@ -739,8 +799,8 @@ describe("User Controller", () => {
             userSession = res.body.userSession
             cookie = mockSession('session', process.env.SECRET, userSession);
             res.body.should.be.eql({
-                status: "success",
-                message: "User logged in successfully.",
+                status: 'success',
+                message: 'User logged in successfully.',
                 userSession
             });
             return chai.request(app)
@@ -765,8 +825,8 @@ describe("User Controller", () => {
           userSession = res.body.userSession
           cookie = mockSession('session', process.env.SECRET, userSession);
           res.body.should.be.eql({
-              status: "success",
-              message: "User logged in successfully.",
+              status: 'success',
+              message: 'User logged in successfully.',
               userSession
           });
           return chai.request(app)
@@ -790,8 +850,8 @@ describe("User Controller", () => {
           userSession = res.body.userSession
           cookie = mockSession('session', process.env.SECRET, userSession);
           res.body.should.be.eql({
-              status: "success",
-              message: "User logged in successfully.",
+              status: 'success',
+              message: 'User logged in successfully.',
               userSession
           });
           return chai.request(app)
@@ -815,8 +875,8 @@ describe("User Controller", () => {
           userSession = res.body.userSession
           cookie = mockSession('session', process.env.SECRET, userSession);
           res.body.should.be.eql({
-              status: "success",
-              message: "User logged in successfully.",
+              status: 'success',
+              message: 'User logged in successfully.',
               userSession
           });
           return chai.request(app)
@@ -840,8 +900,8 @@ describe("User Controller", () => {
           userSession = res.body.userSession
           cookie = mockSession('session', process.env.SECRET, userSession);
           res.body.should.be.eql({
-              status: "success",
-              message: "User logged in successfully.",
+              status: 'success',
+              message: 'User logged in successfully.',
               userSession
           });
           return chai.request(app)

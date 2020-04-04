@@ -35,6 +35,7 @@ describe('Add results validation unit tests', () => {
         password: bcrypt.hashSync('1234567', 10),
         phone_number: '07038015455',
         email: 'john.doe@gmail.com',
+        isVerified: true
       });
       await Results.bulkCreate(resultValidData);
     } catch(err) {
