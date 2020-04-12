@@ -22,6 +22,9 @@ const config = {
   },
   production: {
     use_env_variable: 'DATABASE_URL',
+    dialectOptions: {
+      ssl: true
+    },
     dialect: 'postgres',
   },
 };

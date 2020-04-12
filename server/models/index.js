@@ -9,7 +9,6 @@ const basename = path.basename(module.filename);
 process.env.NODE_ENV = process.env.NODE_ENV ? process.env.NODE_ENV.trim() : '';
 const env = process.env.NODE_ENV || 'development';
 const config = dbConfig[env];
-
 const db = {};
 
 let sequelize;
