@@ -4,6 +4,7 @@ import winston from 'winston';
 import bodyParser from 'body-parser';
 import validator from 'express-validator';
 import path from 'path';
+import cors from 'cors';
 import cookieSession from 'cookie-session';
 import fileUpload from 'express-fileupload';
 import router from './routes/index';
@@ -13,6 +14,8 @@ dotenv.config();
 const port = process.env.PORT || 3000;
 
 const app = express()
+
+app.use(cors);
 
 app.use(validator());
 app.use(fileUpload());
