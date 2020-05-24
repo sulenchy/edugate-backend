@@ -102,7 +102,7 @@ describe('User Controller', () => {
         });
         it('should verify user`s account', (done) => {
             chai.request(app)
-            .patch(`${ verifyUrl }?token=${ validToken }`)
+            .get(`${ verifyUrl }?token=${ validToken }`)
             .end((err, res) => {
                 res.status.should.be.eql(200);
                 res.body.should.be.a('object');
