@@ -10,7 +10,7 @@ export default async function sendEmail({ toAddress, subject, body }) {
     secure: true,
     auth: {
       user: process.env.GMAIL_USERNAME,
-      pass: process.env.APP_PASSWORD_FOR_YOUR_DEVICE
+      pass: process.env.GMAIL_APP_PASSWORD
     }
   });
 

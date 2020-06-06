@@ -52,6 +52,7 @@ class UsersController {
         return res.status(201).json({
           status: 'success',
           message: `New account created successfully. ${ verifyEmailResponse.message }`,
+          userSession,
           token
         });
       }
