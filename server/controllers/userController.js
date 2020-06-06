@@ -48,10 +48,10 @@ class UsersController {
         }
         req.session = userSession
         const token = jwt.sign(userSession, process.env.JWT_SECRET, { expiresIn: '1d' });
-        sendEmail({ toAddress: email, subject: EMAIL_VERIFY_SUBJECT, body: EMAIL_VERIFY_MSG({ first_name, token, url: process.env.HOST_URL }) });
+        const verifyEmailResponse = await sendEmail({ toAddress: email, subject: EMAIL_VERIFY_SUBJECT, body: EMAIL_VERIFY_MSG({ first_name, token, url: process.env.HOST_URL }) });
         return res.status(201).json({
           status: 'success',
-          message: 'New account created successfully.',
+          message: `New account created successfully. ${ verifyEmailResponse.message }`,
           token
         });
       }
