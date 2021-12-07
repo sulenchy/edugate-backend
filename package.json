@@ -51,7 +51,7 @@
     "mailgun-js": "0.22.0",
     "mocha": "6.1.4",
     "mock-session": "0.0.5",
-    "nodemailer": "6.4.2",
+    "nodemailer": "6.4.16",
     "nyc": "14.1.1",
     "pg": "7.11.0",
     "pg-hstore": "2.3.3",
