@@ -58,12 +58,14 @@ describe('User Controller', () => {
                 .send(userDataSignupValidData)
                 .end((err, res) => {
                     token = res.body.token;
-                    res.body.should.be.eql({
-                        message: 'New account created successfully.',
-                        status: 'success',
-                        token
-                    });
-                    
+                    res.body.message.should.contain('New account created successfully.');
+                    res.body.status.should.be.eql('success');
+                    res.body.token.should.be.eql(token);
+                    // res.body.should.be.eql({
+                    //     message: 'New account created successfully.',
+                    //     status: 'success',
+                    //     token
+                    // });
                     done();
                 });
         });
@@ -77,11 +79,14 @@ describe('User Controller', () => {
                 .send(userDataSignupValidDataVerify)
                 .end((err, res) => {
                     token = res.body.token;
-                    res.body.should.be.eql({
-                        message: 'New account created successfully.',
-                        status: 'success',
-                        token
-                    });
+                    res.body.message.should.contain('New account created successfully.');
+                    res.body.status.should.be.eql('success');
+                    res.body.token.should.be.eql(token);
+                    // res.body.should.be.eql({
+                    //     message: 'New account created successfully.',
+                    //     status: 'success',
+                    //     token
+                    // });
                     validToken = token;
                     done();
                 });

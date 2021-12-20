@@ -47,6 +47,7 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
     $ git clone https://github.com/chingu-voyages/v9-bears-team-21
     $ cd v9-bears-team-21
+    $ add env variables(follow the .env-sample)
     $ yarn install
 
 ## Technologies
