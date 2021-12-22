@@ -1,7 +1,7 @@
-# v9-bears-team-21
+# Edugate-backend
 This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.| Voyage-9 | https://chingu.io/
 
-[![Build Status](https://travis-ci.org/chingu-voyages/v9-bears-team-21.svg?branch=develop)](https://travis-ci.org/chingu-voyages/v9-bears-team-21)
+[![codecov](https://codecov.io/gh/sulenchy/edugate-backend/branch/main/graph/badge.svg?token=KMZVN08948)](https://codecov.io/gh/sulenchy/edugate-backend)
 ---
 ## Requirements
 

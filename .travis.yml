@@ -7,8 +7,13 @@ before_install:
   - npm i -g npm@6.4.1
   - npm install
   - npm install -g sequelize-cli
+  - npm install -g codecov
 before_script:
   - psql -c 'create database EduGateTestDB;' -U postgres
   - sequelize db:migrate:undo:all
   - sequelize db:migrate
+script:
+  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+  - codecov
 cache: npm
+
