@@ -13,7 +13,7 @@ before_script:
   - sequelize db:migrate:undo:all
   - sequelize db:migrate
 script:
-  - istanbul cover ./node_modules/mocha/bin/_mocha --reporter lcovonly -- -R spec
+  - nyc ./node_modules/.bin/mocha test -R mocha-lcov-reporter
   - codecov
 cache: npm
 
