@@ -50,22 +50,6 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
     $ add env variables(follow the .env-sample)
     $ yarn install
 
-## Technologies
-    - Postgres
-    - Express
-    - React
-    - Node
-    - Redux
-
-## Running the project
-
-    $ yarn start
-
-## Simple build for production
-
-    $ yarn build
-
-
 ## API Endpoints
 | Verb            | Endpoint           | Description       |
 |-----------------|--------------------|-------------------|
@@ -85,3 +69,20 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 | DELETE          | /api/v1/users/delete | Delete users (Admin) |
 | POST            | /api/v1/users/addusers | Add Students (Admin) |
 | PATCH            | /api/v1/user/verify/ | Verifies users email |
+
+
+## Running the project
+
+    $ yarn start
+
+## Simple build for production
+
+    $ yarn build
+
+## Technologies
+    - Postgres
+    - Express
+    - React
+    - Node
+    - Redux
+
