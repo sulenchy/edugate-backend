@@ -26,7 +26,9 @@ fs
     && (file !== basename)
     && (file.slice(-3) === '.js'))
   .forEach((file) => {
-    const model = sequelize.import(path.join(__dirname, file));
+    // eslint-disable-next-line global-require,import/no-dynamic-require
+    const model = require(path.join(__dirname, file))
+      .default(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 
