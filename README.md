@@ -1,11 +1,11 @@
 # Edugate-backend
-This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe.| Voyage-9 | https://chingu.io/
+This project is titled Edugate. The idea behind this project centers around providing result management system to schools expecially high school around the globe. Built at https://chingu.io/ Voyage-9
 
 [![codecov](https://codecov.io/gh/sulenchy/edugate-backend/branch/main/graph/badge.svg?token=KMZVN08948)](https://codecov.io/gh/sulenchy/edugate-backend)
 ---
 ## Requirements
 
-For development, you will only need Node.js and a node global package, Yarn, installed in your environement.
+For development, you will only need Node.js version 10 and a node global package, npm, installed in your environement.
 
 ### Node
 - #### Node installation on Windows
@@ -26,7 +26,7 @@ Also, be sure to have `git` available in your PATH, `npm` might need it (You can
 If the installation was successful, you should be able to run the following command.
 
     $ node --version
-    v8.11.3
+    v10
 
     $ npm --version
     6.1.0
@@ -35,20 +35,13 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
     $ npm install npm -g
 
-###
-### Yarn installation
-  After installing node, this project will need yarn too, so just run the following command.
-
-      $ npm install -g yarn
-
----
-
 ## Install
 
     $ git clone https://github.com/chingu-voyages/v9-bears-team-21
     $ cd v9-bears-team-21
+    $ ensure node version is 10
     $ add env variables(follow the .env-sample)
-    $ yarn install
+    $ npm install
 
 ## API Endpoints
 | Verb            | Endpoint           | Description       |
@@ -73,16 +66,16 @@ If you need to update `npm`, you can make it using `npm`! Cool right? After runn
 
 ## Running the project
 
-    $ yarn start
+    $ npm start
 
 ## Simple build for production
 
-    $ yarn build
+    $ npm build
 
 ## Technologies
     - Postgres
     - Express
-    - React
+    - Sequelize
     - Node
-    - Redux
+    - Mocha and Chai
 

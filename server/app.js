@@ -32,6 +32,6 @@ app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use(router);
 
-app.listen(port, () => winston.log("info",`Example app listening on port ${port}!`))
+app.listen(port, () => winston.log("info",`Edugate-backend listening on port ${port}!`))
 
 export default app;
